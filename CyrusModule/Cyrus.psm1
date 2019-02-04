@@ -17,7 +17,7 @@
 Import-Module Posh-SSH
 Import-Module 7Zip4PowerShell
 
-function Test-ModuleEcho {echo "Hello, world!"}
+function Test-ModuleEcho {Write-Output "Hello, world!"}
 # Perform backups
 function Backup-VM {
     <#
@@ -77,7 +77,7 @@ function Backup-VM {
     # Get the VM object and perform the backup
     $vm = Find-VBRHvEntity -Name $vmName -Server $hypervisor
     Write-Output "Performing VM backup on $($vm.Path)."
-    # The Veeam job output is stored in a variable so as not to clutter the output
+    # The Veeam job output is stored in a variable so as not to clutter the output (it's displayed if -Verbose is set)
     $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
 }
 function Backup-FileShare{}
@@ -86,7 +86,7 @@ function Backup-GroupPolicy{}
 function Backup-MSSQL {}
 
 # Automatically delete backups as per retention policies
-function Cleanup-Backup {}
+function Remove-Backup {}
 
 # Manage secure storage and retieval of passwords
 function Get-SecurePass {}
@@ -160,9 +160,9 @@ function Get-BackupFileHistory{}
 function Set-PartitionLetters{}
 
 # Dynamically create HTML pages for the web dashboard
-function Build-HtmlPages{}
-function Build-IndexPage{}
-function Build-HtmlContent{}
+function Write-HtmlPages{}
+function Write-IndexPage{}
+function Write-HtmlContent{}
 
 # Manage the TFTP server
 function Start-TftpServer{}
