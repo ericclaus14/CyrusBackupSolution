@@ -43,7 +43,7 @@ function Backup-VM {
 
     .NOTES
         Author: Eric Claus
-        Last modified: 2/4/2019
+        Last modified: 2/22/2018
         Based on code by Vladimir Eremin (see the link section).
 
     .LINK
@@ -54,7 +54,7 @@ function Backup-VM {
     #>
 
     Param(
-    [Parameter(Mandatory=$true)][string]$vmName,
+    [Parameter(Mandatory=$true)][array]$vmNames,
     [Parameter(Mandatory=$true)][string]$hypervisorName,
     [Parameter(Mandatory=$true)][string]$backupDirectory,
     [boolean]$disableQuiesce = $false,
@@ -62,23 +62,22 @@ function Backup-VM {
     )
 
     # Add Veeam Powershell snapin
-    Add-PSSnapIn VeeamPSSnapin
+    Asnp VeeamPSSnapin
 
     # Secure password string file containing the encryption key for the backup
-    $encryptionKeyFile = "C:\Repos\CyrusBackupSolution\Other\280299234"
+    $encryptionKeyFile = "$PSScriptRoot\1539586380"
     
     # Convert the secure password file to a Veeam encryption key
     $encryptionKey = Get-Content $encryptionKeyFile | ConvertTo-SecureString
     $encryptionKey = Add-VBREncryptionKey -Password $encryptionKey
 
-    # Get the hypervisor Veeam object
     $hypervisor = Get-VBRServer -name $hypervisorName
 
-    # Get the VM object and perform the backup
-    $vm = Find-VBRHvEntity -Name $vmName -Server $hypervisor
-    Write-Output "Performing VM backup on $($vm.Path)."
-    # The Veeam job output is stored in a variable so as not to clutter the output
-    $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
+    foreach ($vmName in $vmNames) {
+        $vm = Find-VBRHvEntity -Name $vmName -Server $hypervisor
+        echo "$($vm.Path)"
+        $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
+    }
 }
 function Backup-FileShare{}
 function Backup-SshAppliance{}
@@ -90,65 +89,7 @@ function Cleanup-Backup {}
 
 # Manage secure storage and retieval of passwords
 function Get-SecurePass {}
-function New-SecurePassFile {
-    <#
-    .SYNOPSIS
-    Creates a secure password file which can be used to retrieve the password at a later time.
-    
-    .DESCRIPTION
-    This is a Powershell function to create a secure password file. It can be run one time to
-    create a secure password that will be used in scripts that require automation.
-    
-    It prompts for the password to be entered and then converts it to a secure string and saves
-    it to a file. It returns the path to the secure password file as a string. The file name is
-    randomly generated and the directory it is located in can be either left to the default path
-    defined in the script, or a directory specified with the -PwdFileDir parameter.
-    
-    This function must be run on the same computer and by the same user account that will run any 
-    scripts that reference the secure password file.
-    
-    This function can be used in conjuction with Get-SecurePassword to store a secure password
-    and then reference it as plain text in a script. It is useful for scripts that require both 
-    automation and plain text passwords.  
-    
-    See Get-SecurePassword to convert the secure password file to a plain text password in scripts.
-      
-    .OUTPUTS
-    [string] path to the secure password file.
-    
-    .EXAMPLE
-    New-SecurePassFile.ps1
-    Prompts for a password, then converts it to a secure string and saves the file to the default directory.
-    
-    .EXAMPLE
-    New-SecurePassFile "C:\myPwds\"
-    Prompts for a password, then converts it to a secure string and saves the file to the "C:\myPwds\" directory.
-    
-    .NOTES
-    Author: Eric Claus
-    Last Modified: 11/07/2017
-    Based on code from Shawn Melton (@wsmelton), http://blog.wsmelton.com
-    
-    .LINK
-    https://www.sqlshack.com/how-to-secure-your-passwords-with-powershell/
-    #>
-
-    Param(
-        [string]$PwdFileDir = "C:\Scripts"
-    )
-    
-    $PwdFile = "$PwdFileDir\$(Get-Random)"
-    
-    #If (Test-Path $PwdFile) {
-        #New-SecurePassFile $PwdFileDir
-    #}
-    
-    $Password = (Read-Host -Prompt "Enter the password to add to the file" -AsSecureString)
-    
-    ConvertFrom-SecureString -SecureString $Password | Out-File $PwdFile
-    
-    Write-Output $PwdFile
-}
+function New-SecurePassFile {}
 
 # Read in and process the config file
 function Get-ConfigFile{}
