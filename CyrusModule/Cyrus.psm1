@@ -94,6 +94,7 @@ function Backup-VM {
     $hypervisor = Get-VBRServer -name $hypervisorName
 
     # Get the VM object and perform the backup
+    Write-Verbose "Getting the VM as a VBRHvEntity object."
     $vm = Find-VBRHvEntity -Name $vmName -Server $hypervisor
     # The Veeam job output is stored in a variable so as not to clutter the output (it's displayed if -Verbose is set)
     $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
