@@ -17,7 +17,16 @@
 Import-Module Posh-SSH
 Import-Module 7Zip4PowerShell
 
-function Test-ModuleEcho {Write-Output "Hello, world!"}
+function Test-ModuleEcho {
+    [CmdletBinding()]
+    
+    Param(
+    [Parameter(Mandatory=$true)]
+        [string]$vmName
+    )
+    
+    Write-Verbose $vmName
+}
 # Perform backups
 function Backup-VM {
     <#
@@ -75,7 +84,7 @@ function Backup-VM {
     Add-PSSnapIn VeeamPSSnapin
 
     # Secure password string file containing the encryption key for the backup
-    $encryptionKeyFile = "C:\Repos\CyrusBackupSolution\Other\280299234"
+    #$encryptionKeyFile = "C:\Repos\CyrusBackupSolution\Other\280299234"
     
     # Convert the secure password file to a Veeam encryption key
     $encryptionKey = Get-Content $encryptionKeyFile | ConvertTo-SecureString
@@ -86,13 +95,13 @@ function Backup-VM {
 
     # Get the VM object and perform the backup
     $vm = Find-VBRHvEntity -Name $vmName -Server $hypervisor
-    Write-Output "Performing VM backup on $($vm.Path)."
     # The Veeam job output is stored in a variable so as not to clutter the output (it's displayed if -Verbose is set)
     $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
+    Write-Output "Completed VM backup on $($vm.Path)."
     
     Write-Verbose $backupJob
     
-    Remove-Variable $backupJob, $vm, $hypervisor, $encryptionKey, $encryptionKeyFile, $backupDirectory, $hypervisorName
+    Remove-Variable backupJob, vm, hypervisor, encryptionKey, encryptionKeyFile, backupDirectory, hypervisorName
 }
 function Backup-FileShare{
     <#
@@ -184,15 +193,15 @@ function Backup-FileShare{
         $backupLog = "$destination\BackupLog-INCREMENTAL-$date.txt"
         
         # Get the creation time of the most recent backup
-        $lastWrite = (Get-ChildItem -Path $destination -Filter "NASShare-*").CreationTime | Sort | Select -Last 1
-        echo "Backing up files modifed since: $lastWrite"
+        $lastWrite = (Get-ChildItem -Path $destination -Filter "NASShare-*").CreationTime | Sort-Object | Select-Object -Last 1
+        Write-Output "Backing up files modifed since: $lastWrite"
     
         $destinationFile = "$destination\NASShare-INCREMENTAL-$date.7z"
         
         Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
-            Where {$_.LastWriteTime -ge "$LastWrite"} |     # Only get the files that have been modified since the last backup
-            % {$_.FullName} |                               # Get their full path names
+            Where-Object {$_.LastWriteTime -ge "$LastWrite"} |     # Only get the files that have been modified since the last backup
+            ForEach-Object {$_.FullName} |                               # Get their full path names
             Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $nasBackupZipPassword -CompressionLevel $compressionLevel
     }
     elseif ($Type -eq "Full") {
@@ -202,7 +211,7 @@ function Backup-FileShare{
     
         Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
-            % {$_.FullName} |                               # Get their full path names
+            ForEach-Object {$_.FullName} |                               # Get their full path names
             Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $nasBackupZipPassword -CompressionLevel $compressionLevel
         
         # Delete any previous incremental backups (restart incremental backups every time a full backup is run)
