@@ -176,41 +176,8 @@ function Backup-Directory{
     
     $date = Get-Date -Format MM-dd-yyyy-HHmm
     
-    # Include the neccasary functions
-    #$myFunctions = @(
-    #    "$PSScriptRoot\Get-SecurePassword.ps1"
-    #    )
-    #$myFunctions | ForEach-Object {
-    #    If (Test-Path $_) {. $_}
-    #    Else {throw "Error: At least one necessary function was not found."; Exit 99}
-    #}
-
-    # Folder the backup file will reside in (make it if it doesn't exist)
-    #$destination = "Z:\Cyrus\NASShare"
-    #if (!(Test-Path $destination)) {mkdir $destination}
-
-    # Create a PSCredential object with the password for the domain backup VLAN admin account
-    #$securePassFile = "$PSScriptRoot\130294490"
-    #$userName = "ad\Cyrus"
-    #$creds = Get-SecurePassword -PwdFile $securePassFile -userName $userName
-    
-    # What is being backed up
-    #$backupSource = "\\192.168.90.92\d$\NASShare"
-    
-    # Create a temporary mapped drive, connecting to the backup source folder with the credentials from above
-    #Remove-PSDrive -Name "tempSource" -ErrorAction SilentlyContinue
-    #New-PSDrive -Name "tempSource" -PSProvider FileSystem -Root $backupSource -Credential $creds
-    #$source = "tempSource:\"
-    
-    # Files/folders to exclude from being backed up, regular expression
-    #$exclude = "\\home\\mlavertue|\\ICE_INS\\|\\Overall Desktop A\\Corsair\\|\\yearbook\\backup 2017|\\yearbook\\backup 2016|\\CONERLKE\\conerlke\\Google Drive\\|conerlke\\Documents\\Documents 10.26.12\\|\\Backpup files from Julian|02-04-18.tar.gz|\\djernesd.AD\\AppData|\\djernesd\\AppData|\\jancion\\Djernes Drive\\|\\djernesd1.old\\"
-    
     # Get the password to encrypt the backup with
-    #$nasBackupZipPassword = (Get-SecurePassword -PwdFile "$PSScriptRoot\455799013").Password
     $backupZipPassword = (Get-SecurePass -PwdFile $EncryptionKey).Password
-    
-    # What compression level to use, options are: Ultra, High, Fast, Low, None, and Normal
-    #$compressionLevel = "Fast"
     
     if ($Type -eq "Incremental") {
         $backupLog = "$BackupDestinationDir\$Name-INCREMENTAL-BackupLog-$date.txt"
@@ -247,9 +214,6 @@ function Backup-Directory{
 
     # Get a list of items in the new backup file (files that were backed up) and send the list to the backup log
     (Get-7Zip -ArchiveFileName $destinationFile).FileName | Out-File $backupLog -Append
-    
-    # The drive created should be removed once the Powershell session ends, however, this makes sure it goes away
-    Remove-PSDrive -Name "tempSource" -ErrorAction SilentlyContinue
 }
 function Backup-SshAppliance{}
 function Backup-GroupPolicy{
