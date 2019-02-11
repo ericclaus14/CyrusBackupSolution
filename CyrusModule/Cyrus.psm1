@@ -24,7 +24,7 @@ function Test-ModuleEcho {
     [Parameter(Mandatory=$true)]
         [string]$vmName
     )
-    
+
     Write-Verbose $vmName
 }
 # Perform backups
@@ -100,8 +100,6 @@ function Backup-VM {
     $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
     Write-Output "Completed VM backup on $($vm.Path)."
     
-    Write-Verbose $(Get-VBRBackupSession | Sort-Object {$_.state -eq "Stopped"} -Descending | Select-Object -First 1)
-    
     Remove-Variable backupJob, vm, hypervisor, encryptionKey, encryptionKeyFile, backupDirectory, hypervisorName
 }
 function Backup-FileShare{
@@ -142,6 +140,8 @@ function Backup-FileShare{
     #Uncomment line below to install the module
     #Install-Module -Name 7Zip4PowerShell
 
+    [CmdletBinding()]
+
     Param(
         # What is being backed up
         [Parameter(Mandatory=$true)]
@@ -177,13 +177,13 @@ function Backup-FileShare{
     $date = Get-Date -Format MM-dd-yyyy-HHmm
     
     # Include the neccasary functions
-    $myFunctions = @(
-        "$PSScriptRoot\Get-SecurePassword.ps1"
-        )
-    $myFunctions | ForEach-Object {
-        If (Test-Path $_) {. $_}
-        Else {throw "Error: At least one necessary function was not found."; Exit 99}
-    }
+    #$myFunctions = @(
+    #    "$PSScriptRoot\Get-SecurePassword.ps1"
+    #    )
+    #$myFunctions | ForEach-Object {
+    #    If (Test-Path $_) {. $_}
+    #    Else {throw "Error: At least one necessary function was not found."; Exit 99}
+    #}
 
     # Folder the backup file will reside in (make it if it doesn't exist)
     #$destination = "Z:\Cyrus\NASShare"
@@ -221,6 +221,8 @@ function Backup-FileShare{
     
         $destinationFile = "$BackupDestinationDir\$Name-INCREMENTAL-$date.7z"
         
+        Write-Verbose "Backup log=$backupLog; Most recent backup=$lastWrite; Backup file=$destinationFile"
+
         Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
             Where-Object {$_.LastWriteTime -ge "$LastWrite"} |     # Only get the files that have been modified since the last backup
@@ -231,14 +233,16 @@ function Backup-FileShare{
         $backupLog = "$BackupDestinationDir\$Name-FULL-BackupLog-$date.txt"
         
         $destinationFile = "$BackupDestinationDir\$Name-FULL-$date.7z"
-    
+        
+        Write-Verbose "Backup log=$backupLog; Backup file=$destinationFile"
+
         Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
             ForEach-Object {$_.FullName} |                               # Get their full path names
             Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $backupZipPassword -CompressionLevel $compressionLevel
         
         # Delete any previous incremental backups (restart incremental backups every time a full backup is run)
-        Remove-Item -Path "$destination\*" -Filter "*INCREMENTAL*"
+        Remove-Item -Path "$BackupDestinationDir\*" -Filter "*INCREMENTAL*"
     }
 
     # Get a list of items in the new backup file (files that were backed up) and send the list to the backup log
