@@ -223,9 +223,9 @@ function Backup-Directory{
         
         Write-Verbose "Backup log=$backupLog; Most recent backup=$lastWrite; Backup file=$destinationFile"
 
-        Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
+        Get-ChildItem $BackupSource -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
-            Where-Object {$_.LastWriteTime -ge "$LastWrite"} |     # Only get the files that have been modified since the last backup
+            Where-Object {$_.LastWriteTime -ge $LastWrite} |     # Only get the files that have been modified since the last backup
             ForEach-Object {$_.FullName} |                               # Get their full path names
             Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $backupZipPassword -CompressionLevel $compressionLevel
     }
@@ -236,7 +236,7 @@ function Backup-Directory{
         
         Write-Verbose "Backup log=$backupLog; Backup file=$destinationFile"
 
-        Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
+        Get-ChildItem $BackupSource -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
             ForEach-Object {$_.FullName} |                               # Get their full path names
             Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $backupZipPassword -CompressionLevel $compressionLevel
