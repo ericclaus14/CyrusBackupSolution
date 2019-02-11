@@ -102,7 +102,7 @@ function Backup-VM {
     
     Remove-Variable backupJob, vm, hypervisor, encryptionKey, encryptionKeyFile, backupDirectory, hypervisorName
 }
-function Backup-FileShare{
+function Backup-Directory{
     <#
     .SYNOPSIS
         Performs Full or Incremental backups on the NAS.    
@@ -117,11 +117,11 @@ function Backup-FileShare{
             * Must have access to (ie. on the same user account and computer as) the secure password file containing the backup encryption key.
 
     .EXAMPLE
-        Backup-FileShare -Type Full
+        Backup-Directory -Type Full
         Perform a full backup of the file shares on NAS1
 
     .EXAMPLE
-        Backup-FileShare -Type Incremental
+        Backup-Directory -Type Incremental
         Perform an incremental backup of the file shares on NAS1 
 
     .NOTES
@@ -167,7 +167,7 @@ function Backup-FileShare{
             [string]$EncryptionKey,
 
         # Files/folders to exclude from being backed up, regular expression
-        [string]$Exclude,
+        [string]$Exclude = "SomethingThatisNotgoingTobinanactuallpathnameIhope!!!!!",
 
         # What compression level to use
         [ValidateSet("Ultra", "High", "Fast", "Low", "None", "Normal")]
@@ -216,7 +216,7 @@ function Backup-FileShare{
         $backupLog = "$BackupDestinationDir\$Name-INCREMENTAL-BackupLog-$date.txt"
         
         # Get the creation time of the most recent backup
-        $lastWrite = (Get-ChildItem -Path $destination -Filter "NASShare-*").CreationTime | Sort-Object | Select-Object -Last 1
+        $lastWrite = (Get-ChildItem -Path $BackupDestinationDir -Filter "$Name-*").CreationTime | Sort-Object | Select-Object -Last 1
         Write-Output "Backing up files modifed since: $lastWrite"
     
         $destinationFile = "$BackupDestinationDir\$Name-INCREMENTAL-$date.7z"
