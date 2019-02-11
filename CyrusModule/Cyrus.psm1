@@ -52,7 +52,7 @@ function Backup-VM {
 
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 2/4/2019
+        Last modified: 2/11/2019
         Based on code by Vladimir Eremin (see the link section).
 
     .LINK
@@ -128,7 +128,7 @@ function Backup-FileShare{
 
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 2/6/2019
+        Last modified: 2/11/2019
         Thanks to Thomas Freudenberg for his module and his help with getting the incremental backup to work.
 
     .LINK
@@ -143,14 +143,35 @@ function Backup-FileShare{
     #Install-Module -Name 7Zip4PowerShell
 
     Param(
+        # What is being backed up
         [Parameter(Mandatory=$true)]
             # Thanks to Graham Gold for this line https://stackoverflow.com/a/29956099
-            [ValidateScript({Test-Path $_ -PathType 'leaf'})] 
-            [string]$directoryPath,
+            [ValidateScript({Test-Path $_})] 
+            [string]$BackupSource,
         
+        # Folder the backup file will reside in
+        [Parameter(Mandatory=$true)]
+            [ValidateScript({Test-Path $_})] 
+            [string]$BackupDestinationDir,
+
+        # What to name the backup file (will have -<FULL|INCREMENTAL>-<date>.7z added to the end of it)
+        [Parameter(Mandatory=$true)]
+            [string]$Name,
+
         [Parameter(Mandatory=$true)]
             [ValidateSet("Full", "Incremental")]
-            [string]$Type
+            [string]$Type,
+
+        # Secure password file containing the encryption key for the backup
+        [ValidateScript({Test-Path $_ -PathType 'leaf'})]
+            [string]$EncryptionKey,
+
+        # Files/folders to exclude from being backed up, regular expression
+        [string]$Exclude,
+
+        # What compression level to use
+        [ValidateSet("Ultra", "High", "Fast", "Low", "None", "Normal")]
+            [string]$compressionLevel = "Fast"
     )
     
     $date = Get-Date -Format MM-dd-yyyy-HHmm
@@ -165,55 +186,56 @@ function Backup-FileShare{
     }
 
     # Folder the backup file will reside in (make it if it doesn't exist)
-    $destination = "Z:\Cyrus\NASShare"
-    if (!(Test-Path $destination)) {mkdir $destination}
+    #$destination = "Z:\Cyrus\NASShare"
+    #if (!(Test-Path $destination)) {mkdir $destination}
 
     # Create a PSCredential object with the password for the domain backup VLAN admin account
-    $securePassFile = "$PSScriptRoot\130294490"
-    $userName = "ad\Cyrus"
-    $creds = Get-SecurePassword -PwdFile $securePassFile -userName $userName
+    #$securePassFile = "$PSScriptRoot\130294490"
+    #$userName = "ad\Cyrus"
+    #$creds = Get-SecurePassword -PwdFile $securePassFile -userName $userName
     
     # What is being backed up
-    $backupSource = "\\192.168.90.92\d$\NASShare"
+    #$backupSource = "\\192.168.90.92\d$\NASShare"
     
     # Create a temporary mapped drive, connecting to the backup source folder with the credentials from above
-    Remove-PSDrive -Name "tempSource" -ErrorAction SilentlyContinue
-    New-PSDrive -Name "tempSource" -PSProvider FileSystem -Root $backupSource -Credential $creds
-    $source = "tempSource:\"
+    #Remove-PSDrive -Name "tempSource" -ErrorAction SilentlyContinue
+    #New-PSDrive -Name "tempSource" -PSProvider FileSystem -Root $backupSource -Credential $creds
+    #$source = "tempSource:\"
     
     # Files/folders to exclude from being backed up, regular expression
-    $exclude = "\\home\\mlavertue|\\ICE_INS\\|\\Overall Desktop A\\Corsair\\|\\yearbook\\backup 2017|\\yearbook\\backup 2016|\\CONERLKE\\conerlke\\Google Drive\\|conerlke\\Documents\\Documents 10.26.12\\|\\Backpup files from Julian|02-04-18.tar.gz|\\djernesd.AD\\AppData|\\djernesd\\AppData|\\jancion\\Djernes Drive\\|\\djernesd1.old\\"
+    #$exclude = "\\home\\mlavertue|\\ICE_INS\\|\\Overall Desktop A\\Corsair\\|\\yearbook\\backup 2017|\\yearbook\\backup 2016|\\CONERLKE\\conerlke\\Google Drive\\|conerlke\\Documents\\Documents 10.26.12\\|\\Backpup files from Julian|02-04-18.tar.gz|\\djernesd.AD\\AppData|\\djernesd\\AppData|\\jancion\\Djernes Drive\\|\\djernesd1.old\\"
     
     # Get the password to encrypt the backup with
-    $nasBackupZipPassword = (Get-SecurePassword -PwdFile "$PSScriptRoot\455799013").Password
+    #$nasBackupZipPassword = (Get-SecurePassword -PwdFile "$PSScriptRoot\455799013").Password
+    $backupZipPassword = (Get-SecurePass -PwdFile $EncryptionKey).Password
     
     # What compression level to use, options are: Ultra, High, Fast, Low, None, and Normal
-    $compressionLevel = "Fast"
+    #$compressionLevel = "Fast"
     
     if ($Type -eq "Incremental") {
-        $backupLog = "$destination\BackupLog-INCREMENTAL-$date.txt"
+        $backupLog = "$BackupDestinationDir\$Name-INCREMENTAL-BackupLog-$date.txt"
         
         # Get the creation time of the most recent backup
         $lastWrite = (Get-ChildItem -Path $destination -Filter "NASShare-*").CreationTime | Sort-Object | Select-Object -Last 1
         Write-Output "Backing up files modifed since: $lastWrite"
     
-        $destinationFile = "$destination\NASShare-INCREMENTAL-$date.7z"
+        $destinationFile = "$BackupDestinationDir\$Name-INCREMENTAL-$date.7z"
         
         Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
             Where-Object {$_.LastWriteTime -ge "$LastWrite"} |     # Only get the files that have been modified since the last backup
             ForEach-Object {$_.FullName} |                               # Get their full path names
-            Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $nasBackupZipPassword -CompressionLevel $compressionLevel
+            Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $backupZipPassword -CompressionLevel $compressionLevel
     }
     elseif ($Type -eq "Full") {
-        $backupLog = "$destination\BackupLog-FULL-$date.txt"
+        $backupLog = "$BackupDestinationDir\$Name-FULL-BackupLog-$date.txt"
         
-        $destinationFile = "$destination\NASShare-FULL-$date.7z"
+        $destinationFile = "$BackupDestinationDir\$Name-FULL-$date.7z"
     
         Get-ChildItem $source -Recurse -File |              # Get a list of files in the backup source folder
             Where-Object {$_.FullName -notmatch $exclude} | # Filter out the items listed in the exclude list above
             ForEach-Object {$_.FullName} |                               # Get their full path names
-            Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $nasBackupZipPassword -CompressionLevel $compressionLevel
+            Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $backupZipPassword -CompressionLevel $compressionLevel
         
         # Delete any previous incremental backups (restart incremental backups every time a full backup is run)
         Remove-Item -Path "$destination\*" -Filter "*INCREMENTAL*"
