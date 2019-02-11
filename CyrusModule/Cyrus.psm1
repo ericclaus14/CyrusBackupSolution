@@ -42,11 +42,11 @@ function Backup-VM {
             * Must have access to (ie. on the same user account and computer as) the secure password file containing the backup encryption key.
 
     .EXAMPLE
-        Backup-VM -vmNames "Centurion1" -hypervisorName "Isaac" -backupDirectory "\\nas1\v$\VM Backups\Centurion1"
+        Backup-VM -vmName "Centurion1" -hypervisorName "Isaac" -backupDirectory "\\nas1\v$\VM Backups\Centurion1" -encryptionKeyFile "C:\keys\vmEncryption.txt"
         Backs up a VM named "Centurion1" on a hypervisor named "Isaac" and saves the backup file to "\\nas1\v$\VM Backups\Centurion1".
 
     .EXAMPLE
-        Backup-VM -vmNames "Dokuwiki1" -hypervisorName "172.17.0.96" -backupDirectory "E:\VM Backups\Dokuwiki1" -disableQuiesce $true
+        Backup-VM -vmName "Dokuwiki1" -hypervisorName "172.17.0.96" -backupDirectory "E:\VM Backups\Dokuwiki1" -encryptionKeyFile "C:\Scripts\securePassFiles\vmEncryption.txt -disableQuiesce $true
         Backs up a VM named "Dokuwiki1" on a hypervisor named "172.17.0.96", disable quiesce (useful for Linux guests), and saves the backup 
         file to "E:\VM Backups\Dokuwiki1". 
 
@@ -100,7 +100,7 @@ function Backup-VM {
     $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
     Write-Output "Completed VM backup on $($vm.Path)."
     
-    Write-Verbose $backupJob
+    Write-Verbose $(Get-VBRBackupSession | Sort-Object {$_.state -eq "Stopped"} -Descending | Select-Object -First 1)
     
     Remove-Variable backupJob, vm, hypervisor, encryptionKey, encryptionKeyFile, backupDirectory, hypervisorName
 }
