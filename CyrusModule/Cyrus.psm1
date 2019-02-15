@@ -298,9 +298,9 @@ function Backup-SshAppliance{
         Write-Output "Backing up $IP..."
 
         $log = "$LogDirectory\$IP.log"
-        echo "-----------------------------------------------------------" | Out-File -Append $log
-        echo "-----------------------------------------------------------" | Out-File -Append $log
-        echo "Date: $date" | Out-File -Append $log
+        Write-Output "-----------------------------------------------------------" | Out-File -Append $log
+        Write-Output "-----------------------------------------------------------" | Out-File -Append $log
+        Write-Output "Date: $date" | Out-File -Append $log
 
         # Set, and if needed create, the device's backup directory
         $deviceBackupDir = "$BackupDirectory\$IP"
@@ -317,12 +317,12 @@ function Backup-SshAppliance{
 
             # Send a space to get past possible "Press any key to continue" screen (could be any key)
             $shellStream.WriteLine(" ")
-            Sleep 5
+            Start-Sleep 5
 
             # Loop through the list of commands and execute them through the SSH session
             foreach ($cmd in $CommandList) {
                 $shellStream.WriteLine($cmd)
-                Sleep $CommandWaitTime
+                Start-Sleep $CommandWaitTime
             }
         }
         else {
@@ -336,18 +336,18 @@ function Backup-SshAppliance{
         Remove-SSHSession -SSHSession $session
 
         # Get the name of the new backup file
-        $newFileName = (Get-ChildItem $tftpRoot | Sort LastWriteTime | Select -Last 1)
+        $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
         Rename-Item $($newFileName.FullName) -NewName "$date-$($newFileName.Name)"
-        $newFileName = (Get-ChildItem $tftpRoot | Sort LastWriteTime | Select -Last 1).FullName
+        $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
 
 
         if ($Incremental) {
             Write-Verbose "Beginning incremental (Compare-Files) portion..."
         
-            echo "Type: Incremental." | Out-File -Append $log
+            Write-Output "Type: Incremental." | Out-File -Append $log
 
             # Get the name of the most recent copy of the device's backup file
-            $oldFileName = (Get-ChildItem "$deviceBackupDir" | Sort LastWriteTime | Select -Last 1).FullName
+            $oldFileName = (Get-ChildItem "$deviceBackupDir" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
         
             Write-Verbose "Old file: $oldFileName; new file: $newFileName"
 
@@ -361,20 +361,20 @@ function Backup-SshAppliance{
                 Move-Item $newFileName $deviceBackupDir
 
                 # Write the backup file's changes (the results of Compare-Files) to the change log
-                echo $compareResults | Out-File $log -Append
+                Write-Output $compareResults | Out-File $log -Append
             }
 
             # If there has not been a change to the config
             Else {
                 # Delete the newly created backup file
                 Remove-Item $newFileName
-                echo "Device $IP has not been backed up. No change has been detected." | Tee-Object -filepath $log #Out-File -Append $log
+                Write-Output "Device $IP has not been backed up. No change has been detected." | Tee-Object -filepath $log #Out-File -Append $log
             }
         }
         else {
             Write-Verbose "Incremental switch not set, moving new backup file to backup directory."
         
-            echo "Type: Full." | Out-File -Append $log
+            Write-Output "Type: Full." | Out-File -Append $log
 
             Write-Verbose "Newly created file name: $newFileName"
 
