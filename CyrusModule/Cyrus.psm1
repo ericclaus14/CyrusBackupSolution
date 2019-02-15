@@ -169,7 +169,7 @@ function Backup-Directory{
             [string]$EncryptionKey,
 
         # Files/folders to exclude from being backed up, regular expression
-        [string]$Exclude = "SomethingThatisNotgoingTobinanactuallpathnameIhope!!!!!",
+        [string]$Exclude = "SomethingThatisNotgoingTobinanactuallpathnameIhope!!!th!s is gh3++0!",
 
         # What compression level to use
         [ValidateSet("Ultra", "High", "Fast", "Low", "None", "Normal")]
@@ -232,6 +232,40 @@ function Backup-Directory{
     Write-Output "Directory backup of $backupSource complete."
 }
 function Backup-SshAppliance{
+    <#
+    .SYNOPSIS
+        Performs a full or incremental backup on an SSH appliance using TFTP.    
+
+    .DESCRIPTION
+        This function uses the Posh-SSH module to SSH into a target device and run a command, or list of commands, 
+        specified when calling the function. It starts and stops an installed TFTP server and enables and disables
+        an existing TFTP inbound firewall rule.
+
+        When an incremental backup is performed, only files modifed since the last backup was completed will be backed up. If no 
+        files have been modied since the last backup. The Compare-Files function is used to check for any differences between
+        the new backup and the most recent backup to see if the device has been changed. 
+        
+        Requirements:
+            * Must have access to (ie. on the same user account and computer as) the secure password file containing the password for the SSH user.
+            * Solarwinds TFTP server must be installed.
+            * An inbound firewall rule named "TFTP" allowing UDP port 69 must exist in the Windows Firewall.
+
+    .EXAMPLE
+        # Backups up device 10.7.2.3 by running the two commands specified in the array in the -CommandList parameter. Performs an incremental backup and uses an SSH Shell Stream.
+        Backup-SshAppliance -DeviceIPs "10.7.2.3" -CommandList ("command one", "command two") -BackupDirectory C:\Backups -LogDirectory C:\BackupLogs -Username root -SecurePasswordFile C:\path\to\secure\pass\file -Incremental -SshShellStream -PrependDate
+    
+    .EXAMPLE
+        # Backups up devices 10.7.2.3 and 10.7.2.4 by running command specified. Performs an full backup and doesn't use an SSH Shell Stream.
+        Backup-SshAppliance -DeviceIPs "10.7.2.3" -CommandList "command two" -BackupDirectory C:\Backups -LogDirectory C:\BackupLogs -Username root -SecurePasswordFile C:\path\to\secure\pass\file -PrependDate -PrependIP
+    
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last modified: 2/15/2019
+
+    .COMPONENT
+        Posh-SSH, Compare-Files
+    #>
+    
     [CmdletBinding()]
 
     Param(
@@ -278,12 +312,10 @@ function Backup-SshAppliance{
         [switch]$PrependIP
     )
 
-
     #Requires -Modules Posh-SSH
 
     ########## Begin Error Handling ##########
     ########## End Error Handling ##########
-
 
     $date = (Get-Date).ToString("MMddyyHHmm")
 
@@ -484,7 +516,83 @@ function Backup-GroupPolicy{
         Else {Write-Output ("{0} not backed up." -f $name.PadRight(40,"-")) | Tee-Object -FilePath $log -Append}
     }
 }
-function Backup-MSSQL {}
+function Backup-MSSQL {
+    <#
+    .SYNOPSIS
+        Performs a full backup on an SQL Server database.    
+
+    .DESCRIPTION
+        This function performs a full backup of an SQL Server database using the Backup-SQLDatabase cmdlet.
+        
+        Requirements:
+            * A user account with permissions on the SQL server.
+
+    .EXAMPLE
+        # Backs up the VeeamBackup database on the CBS1\VEEAMSQL2016 using the credentials being used by the current Powershell session.
+        Backup-MSSQL -ServerAndInstance "CBS1\VEEAMSQL2016" -Database "VeeamBackup" -BackupDirectory "C:\Backup\DB"
+
+    .EXAMPLE
+        # Backs up the database named VeeamBackup on the VEEAMSQL2016 instance on the CBS1 server using the sa account.
+        Backup-MSSQL -ServerAndInstance "CBS1\VEEAMSQL2016" -Database "VeeamBackup" -BackupDirectory "C:\Backup\DB" -Username "sa" -SecurePasswordFile "C:\path\to\file"
+    
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last modified: 2/15/2019
+
+    .COMPONENT
+        Backup-SQLDatabase
+    #>
+    
+    [CmdletBinding(DefaultParameterSetName="None")]
+
+    Param(
+        # SQL Server and instance name (ie. "Server\Instance")
+        [Parameter(Mandatory=$true)]
+            [string]$ServerAndInstance,
+
+        # Database name to be backed up (can be an array of multiple database names)
+        [Parameter(Mandatory=$true)]
+            [string[]]$Database,
+
+        [Parameter(Mandatory=$true)]
+            [string]$BackupDirectory,
+
+        [Parameter(ParameterSetName="Creds",Mandatory=$false)]
+        [string]$Username,
+
+        [Parameter(ParameterSetName="Creds",Mandatory=$true)]
+            [ValidateScript({Test-Path $_ -PathType 'leaf'})] 
+            [string]$SecurePasswordFile
+    )
+
+    $date = (Get-Date).ToString("MMddyyHHmm")
+
+    foreach ($db in $Database) {
+        $backupFile = "$BackupDirectory\$db-$date.bak"
+
+        Write-Output "Backing up $db on $ServerAndInstance to $backupFile..."
+
+        Try {
+            # If a username is specified 
+            # (and if it is, a path to a secure password file containing the password for the account will be required)
+            if ($Username) {
+                $creds = Get-SecurePass -PwdFile $SecurePasswordFile -userName $Username
+                Backup-SqlDatabase -ServerInstance $ServerAndInstance -Database $db -BackupFile $backupFile -Credential $creds
+            }
+            # If a username and password are not specified, use the same credentials as the current Powershell session
+            else {
+                Backup-SqlDatabase -ServerInstance $ServerAndInstance -Database $db -BackupFile $backupFile
+            }
+
+            Write-Output "Backup of $db complete. "
+        }
+        
+        Catch {
+            Write-Output "There has been an error and the backup has not been completed."
+            Write-Error "$_"
+        }
+    }
+}
 
 # Automatically delete backups as per retention policies
 function Remove-Backup {}
