@@ -231,7 +231,164 @@ function Backup-Directory{
 
     Write-Output "Directory backup of $backupSource complete."
 }
-function Backup-SshAppliance{}
+function Backup-SshAppliance{
+    [CmdletBinding()]
+
+    Param(
+        # IP, or list of IPs, to perform the backup on
+        [Parameter(Mandatory=$true)]
+            [string[]]$DeviceIPs,
+
+        # Array of commands to be run via SSH on remote device
+        [Parameter(Mandatory=$true)]
+            [string[]]$CommandList,
+
+        # Directory to store the backups
+        [Parameter(Mandatory=$true)]
+            [ValidateScript({Test-Path $_})]
+            [string]$BackupDirectory,
+
+        # Directory to store the logs
+        [ValidateScript({Test-Path $_})]
+            [string]$LogDirectory = "$BackupDirectory\Logs",
+
+        # Username to SSH with
+        [Parameter(Mandatory=$true)]
+            [string]$Username,
+    
+        # Secure password file containing the password for the above user
+        [Parameter(Mandatory=$true)]
+            [ValidateScript({Test-Path $_ -PathType 'leaf'})] 
+            [string]$SecurePasswordFile,
+
+        # Is this an incremental backup that will use Compate-Files to only perform
+        # the backup if there has been a change? 
+        # ONLY WORKS FOR BACKUPS THAT CONSIST OF ONLY ONE FILE.
+        # ONLY WORKS IF TFTP IS BEING USED.
+        [switch]$Incremental,
+
+        # Does this SSH appliance require an SSH Shell Stream?
+        [switch]$SshShellStream,
+
+        # Time to wait (sleep) in seconds between sending commands to the Shell Stream
+        [int]$CommandWaitTime = 10
+    )
+
+
+    #Requires -Modules Posh-SSH
+    . C:\Scripts\Cyrus-Backup-Client\Other\Get-SecurePassword.ps1
+    . C:\Scripts\Cyrus-Backup-Client\Other\Compare-Files.ps1
+
+    ########## Begin Error Handling ##########
+    ########## End Error Handling ##########
+
+
+    $date = (Get-Date).ToString("MMddyyHHmm")
+
+    $credentials = Get-SecurePassword -PwdFile $SecurePasswordFile -userName $Username
+
+    # TFTP root directory. For SolarWinds: C:\TFTP-Root
+    $tftpRoot = "C:\TFTP-Root"
+
+    # Start SolarWinds TFTP Server and enable firewall rule
+    Start-TftpServer
+
+    # Loop through each device
+    foreach ($IP in $DeviceIPs) {
+        Write-Output "Backing up $IP..."
+
+        $log = "$LogDirectory\$IP.log"
+        echo "-----------------------------------------------------------" | Out-File -Append $log
+        echo "-----------------------------------------------------------" | Out-File -Append $log
+        echo "Date: $date" | Out-File -Append $log
+
+        # Set, and if needed create, the device's backup directory
+        $deviceBackupDir = "$BackupDirectory\$IP"
+        if (!(Test-Path $deviceBackupDir)) {
+            New-Item $deviceBackupDir -ItemType Directory | Out-Null
+        }
+
+        # Create a new SSH session
+        $session = New-SSHSession -ComputerName $IP -Credential $credentials -AcceptKey:$True
+
+        if ($SshShellStream) {
+            # Initiate an SSH Shell Stream
+            $shellStream = New-SSHShellStream -SSHSession $session
+
+            # Send a space to get past possible "Press any key to continue" screen (could be any key)
+            $shellStream.WriteLine(" ")
+            Sleep 5
+
+            # Loop through the list of commands and execute them through the SSH session
+            foreach ($cmd in $CommandList) {
+                $shellStream.WriteLine($cmd)
+                Sleep $CommandWaitTime
+            }
+        }
+        else {
+            # Loop through the list of commands and execute them through the SSH session
+            foreach ($cmd in $CommandList) {
+                Invoke-SSHCommand -Command $cmd -SSHSession $session
+            }
+        }
+
+        # Close the SSH session
+        Remove-SSHSession -SSHSession $session
+
+        # Get the name of the new backup file
+        $newFileName = (Get-ChildItem $tftpRoot | Sort LastWriteTime | Select -Last 1)
+        Rename-Item $($newFileName.FullName) -NewName "$date-$($newFileName.Name)"
+        $newFileName = (Get-ChildItem $tftpRoot | Sort LastWriteTime | Select -Last 1).FullName
+
+
+        if ($Incremental) {
+            Write-Verbose "Beginning incremental (Compare-Files) portion..."
+        
+            echo "Type: Incremental." | Out-File -Append $log
+
+            # Get the name of the most recent copy of the device's backup file
+            $oldFileName = (Get-ChildItem "$deviceBackupDir" | Sort LastWriteTime | Select -Last 1).FullName
+        
+            Write-Verbose "Old file: $oldFileName; new file: $newFileName"
+
+            # Check to see if there has been a change to the device since last backup
+            # If so, store the changed lines in $compareResults
+            $compareResults = Compare-Files $oldFileName $newFileName
+
+            # If there has been a change to the backup file 
+            If ($compareResults) {
+                # Move the backup file to the backup directory
+                Move-Item $newFileName $deviceBackupDir
+
+                # Write the backup file's changes (the results of Compare-Files) to the change log
+                echo $compareResults | Out-File $log -Append
+            }
+
+            # If there has not been a change to the config
+            Else {
+                # Delete the newly created backup file
+                Remove-Item $newFileName
+                echo "Device $IP has not been backed up. No change has been detected." | Tee-Object -filepath $log #Out-File -Append $log
+            }
+        }
+        else {
+            Write-Verbose "Incremental switch not set, moving new backup file to backup directory."
+        
+            echo "Type: Full." | Out-File -Append $log
+
+            Write-Verbose "Newly created file name: $newFileName"
+
+            # Move the backup file to the backup directory
+            Move-Item $newFileName $deviceBackupDir
+        }
+
+        Write-Output "Backup of $IP is complete - $date." | Tee-Object -Append $log
+    }
+
+    # Stop SolarWinds TFTP Server and disable firewall rule
+    Stop-TftpServer
+
+}
 function Backup-GroupPolicy{
     <#
     .SYNOPSIS
