@@ -271,7 +271,11 @@ function Backup-SshAppliance{
         [switch]$SshShellStream,
 
         # Time to wait (sleep) in seconds between sending commands to the Shell Stream
-        [int]$CommandWaitTime = 10
+        [int]$CommandWaitTime = 10,
+
+        # Prepend the date time stamp and/or the device's IP to the backup file name?
+        [switch]$PrependDate,
+        [switch]$PrependIP
     )
 
 
@@ -335,9 +339,18 @@ function Backup-SshAppliance{
 
         # Get the name of the new backup file
         $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
-        Rename-Item $($newFileName.FullName) -NewName "$date-$($newFileName.Name)"
+        
+        # Rename if file if the $PrependDate and/or $PrependIP switches are set
+        if ($PrependDate) {
+            Rename-Item $($newFileName.FullName) -NewName "$date-$($newFileName.Name)"
+            Write-Verbose "Prepended date to file name."
+            $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
+        }
+        if ($PrependIP) {
+            Rename-Item $($newFileName.FullName) -NewName "$IP-$($newFileName.Name)"
+            Write-Verbose "Prepended IP to file name."
+        }
         $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
-
 
         if ($Incremental) {
             Write-Verbose "Beginning incremental (Compare-Files) portion..."
@@ -358,6 +371,8 @@ function Backup-SshAppliance{
                 # Move the backup file to the backup directory
                 Move-Item $newFileName $deviceBackupDir
 
+                Write-Output "Device $IP has been backed up. A change has been detected." | Tee-Object -filepath $log -Append
+
                 # Write the backup file's changes (the results of Compare-Files) to the change log
                 Write-Output $compareResults | Out-File $log -Append
             }
@@ -365,8 +380,8 @@ function Backup-SshAppliance{
             # If there has not been a change to the config
             Else {
                 # Delete the newly created backup file
-                Remove-Item $newFileName
-                Write-Output "Device $IP has not been backed up. No change has been detected." | Tee-Object -filepath $log #Out-File -Append $log
+                #Remove-Item $newFileName
+                Write-Output "Device $IP has not been backed up. No change has been detected." | Tee-Object -filepath $log -Append
             }
         }
         else {
@@ -374,10 +389,12 @@ function Backup-SshAppliance{
         
             Write-Output "Type: Full." | Out-File -Append $log
 
-            Write-Verbose "Newly created file name: $newFileName"
-
             # Move the backup file to the backup directory
             Move-Item $newFileName $deviceBackupDir
+
+            $newlyMovedFile = (Get-ChildItem "$deviceBackupDir" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
+
+            Write-Verbose "Newly created file name: $newlyMovedFile"
         }
 
         Write-Output "Backup of $IP is complete - $date." | Tee-Object -Append $log
@@ -632,7 +649,79 @@ function Stop-TftpServer {
 }
 
 # Compare files for incremental backups
-function Compare-Files{}
+function Compare-Files{
+    <#
+    .SYNOPSIS
+        Compare two files and return any changes.
+    
+    .DESCRIPTION
+        Compare-Files uses Compare-Object to compare two files. It outputs
+        the differences between the two files in a formatted table. By
+        setting the -IncludeEqual flag, it can return all of the lines 
+        that are unchanged, as well. 
+
+        If differences between the two files are found, an array containing
+        the differences is returned. The output has the format:
+
+        Line Number    <name of older file>    <name of newer file>    Action
+        -----------    --------------------    --------------------    ------
+                  4    This is a line of text                          Removed
+                 12                            A new line of text      Added    
+
+    .INPUTS
+        This script does not accept any piped inputs.
+    
+    .OUTPUTS
+        None, or [System.Array]
+    
+    .NOTES
+        Author: Eric Claus, IT Assistant, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last Modified: 05/04/2018
+    
+        Thanks to Lee Holmes for his Compare-File script, from which this is based.
+    
+    .LINK
+        http://doku/doku.php?id=other:compare-files
+        http://www.leeholmes.com/blog/2013/11/29/using-powershell-to-compare-diff-files/
+    
+    .COMPONENT
+        Compare-Object
+    #>
+    
+    Param(
+        [Parameter(Mandatory=$True)][string]$oldFile,
+        [Parameter(Mandatory=$True)][string]$newFile,
+        [switch]$IncludeEqual
+    )
+
+    # Get the file names from the full paths
+    $oldName = Split-Path -Path $oldFile -Leaf
+    $newName = Split-Path -Path $newFile -Leaf
+
+    $oldContents = Get-Content $oldFile
+    $newContents = Get-Content $newFile
+    
+    # Compare the two files, sort the lines by line number, and loop through them
+    Compare-Object $oldContents $newContents -IncludeEqual:$IncludeEqual | Sort-Object {$_.InputObject.ReadCount} | ForEach-Object {
+        
+        $line = "$($_.InputObject)"
+        
+        # What change was made to the line
+        Switch ($_.SideIndicator) {
+            "==" {$action = ""; $oldLine = $newLine = $line}
+            "=>" {$action = "Added"; $oldLine = ""; $newLine = $line}
+            "<=" {$action = "Removed"; $oldLine = $line; $newLine = ""}
+        }
+    
+        # Return a PSCustomObject, creates an array when returned multiple times
+        [PSCustomObject] @{
+            "Line Number" = $_.InputObject.ReadCount
+            $oldName = $oldLine
+            $newName = $newLine
+            Action = $action
+        }
+    }
+}
 
 # Send alert emails upon backup failure
 function Send-AlertEmail{}
