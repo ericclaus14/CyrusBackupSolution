@@ -111,18 +111,20 @@ function Backup-Directory{
         This function uses the 7Zip4PowerShell module to compress, encrypt, and backup the file shares on NAS1.
         All folders inside of the NASShare folder on NAS1 are backed up.
 
-        When an incremental backup is performed, only files modifed since the last backup was completed will be backed up.
+        When an incremental backup is performed, only files modifed since the last backup was completed will be backed up. If no 
+        files have been modied since the last backup, an error will occur. The backup name (specified with the -Name parameter) 
+        MUST be the same everytime you perform a backup in order for the previous backup to be found.
         
         Requirements:
             * Must have access to (ie. on the same user account and computer as) the secure password file containing the backup encryption key.
 
     .EXAMPLE
-        Backup-Directory -Type Full
-        Perform a full backup of the file shares on NAS1
+        Backup-Directory -BackupSource "C:\myfiles\dirToBeBackedUp" -BackupDestinationDir "C:\Backup\myfiles" -Name "My Files" -Type Full -EncryptionKey "C:\Repos\CyrusBackupSolution\Other\SecurePasswordFiles\dirEncryption"
+        Perform a full backup of "C:\myfiles\dirToBeBackedUp"
 
     .EXAMPLE
-        Backup-Directory -Type Incremental
-        Perform an incremental backup of the file shares on NAS1 
+        Backup-Directory -BackupSource "\\filesvr\NetworkShare" -BackupDestinationDir "C:\Backup" -Name "Network Share" -Type Incremental -EncryptionKey "C:\Repos\CyrusBackupSolution\Other\SecurePasswordFiles\dirEncryption" -Exclude "\\*.txt|\\git"
+        Perform an incremental backup of "\\filesvr\NetworkShare" and exclude any files or folders with a .txt file type or with "git" in the path name.
 
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
@@ -179,7 +181,12 @@ function Backup-Directory{
     # Get the password to encrypt the backup with
     $backupZipPassword = (Get-SecurePass -PwdFile $EncryptionKey).Password
     
+    Write-Verbose "Encryption password retrieved. Starting backup."
+
     if ($Type -eq "Incremental") {
+        
+        Write-Output "Incremental backup selected."
+
         $backupLog = "$BackupDestinationDir\$Name-INCREMENTAL-BackupLog-$date.txt"
         
         # Get the creation time of the most recent backup
@@ -195,8 +202,12 @@ function Backup-Directory{
             Where-Object {$_.LastWriteTime -ge $LastWrite} |     # Only get the files that have been modified since the last backup
             ForEach-Object {$_.FullName} |                               # Get their full path names
             Compress-7Zip -Format SevenZip -ArchiveFileName $destinationFile -SecurePassword $backupZipPassword -CompressionLevel $compressionLevel
+        
+        Write-Output "Incremental backup complete."
     }
     elseif ($Type -eq "Full") {
+        Write-Output "Full backup selected."
+        
         $backupLog = "$BackupDestinationDir\$Name-FULL-BackupLog-$date.txt"
         
         $destinationFile = "$BackupDestinationDir\$Name-FULL-$date.7z"
@@ -210,10 +221,15 @@ function Backup-Directory{
         
         # Delete any previous incremental backups (restart incremental backups every time a full backup is run)
         Remove-Item -Path "$BackupDestinationDir\*" -Filter "*INCREMENTAL*"
-    }
 
+        Write-Output "Full backup complete."
+    }
+    
+    Write-Verbose "Getting list of items backed up (ie. all items in the backup zip file)."
     # Get a list of items in the new backup file (files that were backed up) and send the list to the backup log
     (Get-7Zip -ArchiveFileName $destinationFile).FileName | Out-File $backupLog -Append
+
+    Write-Output "Directory backup of $backupSource complete."
 }
 function Backup-SshAppliance{}
 function Backup-GroupPolicy{
@@ -236,7 +252,7 @@ function Backup-GroupPolicy{
 
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last Modified: 2/4/2019
+        Last Modified: 2/13/2019
 
     .LINK
         https://gallery.technet.microsoft.com/scriptcenter/Incremental-GPO-Backup-ccc0856f
@@ -245,10 +261,28 @@ function Backup-GroupPolicy{
         RSAT, PS module grouppolicy
     #>
 
-    $date = Get-Date -Format d | ForEach-Object {$_ -replace "/", "-"}
-    $log = "\\nas1\d$\NASShare\dr\GPO\Logs\Backuplog-$date.log"
+    [CmdletBinding()]
+
+    Param(
+        # Where to store the backups
+        [Parameter(Mandatory=$true)]
+            [ValidateScript({Test-Path $_})]
+            [string]$BackupDirectory,
+    
+        # Where is the log file to be stored?
+        [ValidateScript({Test-Path $_})] 
+            [string]$LogDirectory = "$BackupDirectory\Logs"
+    )
+
+    Write-Output "Begennning Group Policy backup..."
+
+    $date = Get-Date -Format MM-dd-yyyy-HHmm
+
+    $log = "$LogDirectory\GPO-BackupLog-$date.log"
+    
     Write-Output $date | Out-File $log
       
+    Write-Verbose "Importing grouppolicy module."
     # Import required module
     Import-Module grouppolicy
 
@@ -258,11 +292,16 @@ function Backup-GroupPolicy{
         $lastModified = $GPO.ModificationTime
     
         # Set the path to the backup directory, named for the GPO and it's modification date
-        $path = "\\nas1\d$\NASShare\dr\GPO\Incremental\$name\$lastModified"
+        $path = "$BackupDirectory\Backups\$name\$lastModified"
+        
+        # GPO name and last modified date might include chatacters not legal in a file path
         $path = $path -replace ':','-'
+        $path = $path -replace 'C-','C:'
         $path = $path -replace '/','-'
         $path = $path -replace ' ','_'
     
+        Write-Verbose "GPO name=$name; Last modified=$lastModified; Backup path=$path."
+
         # Check if the GPO has been modified since it was last backed up by
         # checking to see if there is already a backup folder by the same name.
         If (!(Test-Path $path)) {
