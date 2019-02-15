@@ -276,8 +276,6 @@ function Backup-SshAppliance{
 
 
     #Requires -Modules Posh-SSH
-    . C:\Scripts\Cyrus-Backup-Client\Other\Get-SecurePassword.ps1
-    . C:\Scripts\Cyrus-Backup-Client\Other\Compare-Files.ps1
 
     ########## Begin Error Handling ##########
     ########## End Error Handling ##########
@@ -285,7 +283,7 @@ function Backup-SshAppliance{
 
     $date = (Get-Date).ToString("MMddyyHHmm")
 
-    $credentials = Get-SecurePassword -PwdFile $SecurePasswordFile -userName $Username
+    $credentials = Get-SecurePass -PwdFile $SecurePasswordFile -userName $Username
 
     # TFTP root directory. For SolarWinds: C:\TFTP-Root
     $tftpRoot = "C:\TFTP-Root"
@@ -614,8 +612,24 @@ function Write-IndexPage{}
 function Write-HtmlContent{}
 
 # Manage the TFTP server
-function Start-TftpServer{}
-function Stop-TftpServer{}
+function Start-TftpServer {
+    # Start SolarWinds TFTP Server
+    Write-Output "Starting TFTP server..."
+    Start-Service -Name “SolarWinds TFTP Server”
+
+    # Enable the TFTP firewall rule
+    Write-Output "Enabling TFTP firewall rule..."
+    netsh advfirewall firewall set rule name="TFTP" new enable=yes
+}
+function Stop-TftpServer {
+    # Stop Solarwinds TFTP Server
+    Write-Output "Stopping TFTP server..."
+    Stop-Service -Name "SolarWinds TFTP Server"
+
+    # Disable the TFTP firewall rule
+    Write-Output "Disabling TFTP firewall rule..."
+    netsh advfirewall firewall set rule name="TFTP" new enable=no
+}
 
 # Compare files for incremental backups
 function Compare-Files{}
