@@ -17,16 +17,7 @@
 Import-Module Posh-SSH
 Import-Module 7Zip4PowerShell
 
-function Test-ModuleEcho {
-    [CmdletBinding()]
-    
-    Param(
-    [Parameter(Mandatory=$true)]
-        [string]$vmName
-    )
 
-    Write-Verbose $vmName
-}
 # Perform backups
 function Backup-VM {
     <#
@@ -97,10 +88,11 @@ function Backup-VM {
     Write-Verbose "Getting the VM as a VBRHvEntity object."
     $vm = Find-VBRHvEntity -Name $vmName -Server $hypervisor
     # The Veeam job output is stored in a variable so as not to clutter the output (it's displayed if -Verbose is set)
-    $backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
+    #$backupJob = Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey
+    Start-VBRZip -Entity $vm -Folder $backupDirectory -Compression $CompressionLevel -DisableQuiesce:($DisableQuiesce) -EncryptionKey $encryptionKey | Out-Null
     Write-Output "Completed VM backup on $($vm.Path)."
     
-    Remove-Variable backupJob, vm, hypervisor, encryptionKey, encryptionKeyFile, backupDirectory, hypervisorName
+    Remove-Variable vm, hypervisor, encryptionKey, encryptionKeyFile, backupDirectory, hypervisorName
 }
 function Backup-Directory{
     <#
@@ -267,6 +259,8 @@ function Backup-SshAppliance{
     #>
     
     [CmdletBinding()]
+
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "SecurePasswordFile")]
 
     Param(
         # IP, or list of IPs, to perform the backup on
@@ -545,6 +539,8 @@ function Backup-MSSQL {
     
     [CmdletBinding(DefaultParameterSetName="None")]
 
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "SecurePasswordFile")]
+
     Param(
         # SQL Server and instance name (ie. "Server\Instance")
         [Parameter(Mandatory=$true)]
@@ -595,8 +591,107 @@ function Backup-MSSQL {
 }
 
 # Automatically delete backups as per retention policies
-function Remove-Backup {
+function Remove-Backups {
+    <#
+    .SYNOPSIS
+        This is a Powershell script which cleans up old files.
+        Used to comply with retention policies for various backups.
     
+    .DESCRIPTION
+        This script can be used in order to comply with the retention policy for backups stored on NAS1. The script      
+        removes backups that are outside the time frame for the corresponding retention policy. For example, if a 
+        retention policy states that a particular backup should be kept for 31 days, this script can delete any 
+        backups that are more than 31 days old. It can be used in conjunction with Task Scheduler to automate the 
+        process. Multiple backups can be configured in this script, each with their own retention policy settings.
+    
+        Each seperate item being backed up (eg. software, files, configurations, or other items) can be listed in the
+        script, along with the directory its backups are located in, the time span (in days) of backups to keep, and
+        optionally, a specific extension to delete and a custom log file location. 
+    
+        The function which performs the deletion, Cleanup-Backups (not to be confused with the name of the script...),
+        is called seperately for each item who's backups are being cleaned up. See the script for examples.
+    
+    .NOTES
+        Author: Eric Claus, System Administrator, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last Modified: 2/18/2019
+        Modified from: http://www.networknet.nl/apps/wp/published/powershell-delete-files-older-than-x-days
+    
+    .LINK
+        http://doku/doku.php?id=dr:cleanup-backups
+    #>
+
+    [CmdletBinding(DefaultParameterSetName="None")]
+
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "SecurePasswordFile")]
+    
+    Param(
+        [Parameter(Mandatory=$true)]
+            [string]$BackupName,
+        
+        [Parameter(Mandatory=$true)]
+            [int]$DaysOldToKeep,
+        
+        [Parameter(Mandatory=$true)]
+            [ValidateScript({Test-Path $_})]
+            [string]$BackupFolder,
+        
+        [string]$Extension="*",
+        
+        [ValidateScript({Test-Path $_})]
+            [string]$LogFile="$BackupFolder\Logs\Remove-Backups-$BackupName.log",
+        
+        [Parameter(ParameterSetName="Creds",Mandatory=$false)]
+            [switch]$UseOtherCredentials,
+        
+        [Parameter(ParameterSetName="Creds",Mandatory=$true)] 
+            [string]$Username,
+        
+        [Parameter(ParameterSetName="Creds",Mandatory=$true)] 
+            [string]$SecurePasswordFile
+    )
+    
+    if ($UseOtherCredentials) {
+        # Create a PSCredential object with the password for the domain backup VLAN admin account
+        $creds = Get-SecurePassword -PwdFile $SecurePasswordFile -userName $Username
+
+        # Create a temporary mapped drive, connecting to the backup source folder with the credentials from above
+        Remove-PSDrive -Name "myTempSource" -ErrorAction SilentlyContinue
+        New-PSDrive -Name "myTempSource" -PSProvider FileSystem -Root $BackupFolder -Credential $creds
+        $source = "myTempSource:\"
+    }
+    else {$source = $BackupFolder}
+        
+    $date = Get-Date
+
+    # Set $lastWrite to a DateTime object that is the current date minus $DaysOldToKeep
+    # This is the oldest date of files to be kept
+    $lastWrite = $date.AddDays(-$DaysOldToKeep)
+
+    # For the log
+    Write-Output "------------------------------------------------------" >>$LogFile
+    Write-Output "Performing cleanup of the $BackupName backups." | Tee-Object $LogFile -Append  
+    Write-Output $date | Out-File $LogFile -Append
+    Write-Output "Last write date: $lastWrite" | Out-File $LogFile -Append
+
+    Write-Verbose "Last write date: $lastWrite"
+
+    # Get files from the backup folder with the specified extension, if it is older than the time specified in $DaysOldToKeep
+    $Files = Get-Childitem $source -Recurse -Filter "*.$Extension" | Where-Object {$_.LastWriteTime -le "$LastWrite"}	 
+
+    # If there are no files to be deleted
+    if ($NULL -eq $Files) {
+        Write-Output "No files to delete today!" | Out-File $LogFile -Append
+        Write-Verbose "No files to delete today!"
+    }
+
+    # Loop through each file and delete it.
+    foreach ($File in $Files) {
+        if ($NULL -ne $File) {
+            Write-Output "Deleting File $File" | Out-File $LogFile -Append
+            Write-Verbose "Deleting File $File"
+            Remove-Item -LiteralPath $File.FullName -Recurse
+        }
+    }
 }
 
 # Manage secure storage and retieval of passwords
@@ -703,7 +798,7 @@ function New-SecurePassFile {
     Prompts for a password, then converts it to a secure string and saves the file to the "C:\myPwds\" directory.
     
     .NOTES
-    Author: Eric Claus
+    Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
     Last Modified: 11/07/2017
     Based on code from Shawn Melton (@wsmelton), http://blog.wsmelton.com
     
@@ -731,7 +826,52 @@ function Get-ConfigFile{}
 function Get-BackupFileHistory{}
 
 # Automatically assign drive letters for rotating external hard drives
-function Set-PartitionLetters{}
+function Set-DriveLetter{
+        <#
+    .SYNOPSIS
+        This function changes the assigned drive letters of the NAS and VM backup partitions on the Backup External Hard Drives.
+     
+    .DESCRIPTION
+        This function can be called from the Cyrus Backup Solution core script to make sure that all drives and partitions
+        on any removable media (such as external hard drives) that are rotated out have the correct assigned drive letters.
+        This eliminates the need to manually change the assigned drive letters. 
+
+        Drives are selected via a wild card match of their name, with the percent (%) sign being a wild card character. 
+        For example, if you wish to change the drive letter of a drive named "SSS_7829DH", pass the following into the 
+        $DriveOrPartitionName parameter (without the quotes): "SSS%"".
+
+    .EXAMPLE
+        # Set the assigned drive letter of drive "VM Backup Partition [1|2|3]" to "V".
+        Set-DriveLetter -DriveOrPartitionName "VM Backup %" -DriveLetter "v"
+     
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last Modified: 2/18/2019
+     
+    .LINK
+        https://blogs.technet.microsoft.com/heyscriptingguy/2011/03/14/change-drive-letters-and-labels-via-a-simple-powershell-command/
+        https://stackoverflow.com/questions/46557186/wildcard-search-in-filter
+     
+    .COMPONENT
+        Get-WmiObject -Class win32_volume
+    #>
+     
+    [CmdletBinding()]
+
+    Param(
+        [Parameter(Mandatory=$true)]
+            [string]$DriveOrPartitionName,
+
+        [Parameter(Mandatory=$true)]
+            [string]$DriveLetter
+    )
+
+    $filterString = "Label like '$DriveOrPartitionName'"
+
+    $drive = Get-WmiObject -Class win32_volume -Filter $filterString
+    $drive.DriveLetter = "$($DriveLetter):"
+    $drive.Put() | Out-Null
+}
 
 # Dynamically create HTML pages for the web dashboard
 function Write-HtmlPages{}
