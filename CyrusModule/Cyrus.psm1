@@ -595,7 +595,9 @@ function Backup-MSSQL {
 }
 
 # Automatically delete backups as per retention policies
-function Remove-Backup {}
+function Remove-Backup {
+    
+}
 
 # Manage secure storage and retieval of passwords
 function Get-SecurePass {
