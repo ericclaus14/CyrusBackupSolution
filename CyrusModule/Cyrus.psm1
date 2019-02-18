@@ -17,6 +17,9 @@
 Import-Module Posh-SSH
 Import-Module 7Zip4PowerShell
 
+# Thanks to Trevor Sullivan for this regular expression!
+# https://stackoverflow.com/a/48253796
+$ValidEmailAddress = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
 
 # Perform backups
 function Backup-VM {
@@ -54,21 +57,31 @@ function Backup-VM {
     #>
 
     [CmdletBinding()]
-    
+
     Param(
     [Parameter(Mandatory=$true)]
         [string]$vmName,
+    
     [Parameter(Mandatory=$true)]
         [string]$hypervisorName,
+    
     [Parameter(Mandatory=$true)]
         [string]$backupDirectory,
+    
     [Parameter(Mandatory=$true)]
         # Thanks to Graham Gold for this line https://stackoverflow.com/a/29956099
         [ValidateScript({Test-Path $_ -PathType 'leaf'})] 
         [string]$encryptionKeyFile,
+    
     [boolean]$disableQuiesce = $false,
+    
     [ValidateSet(0, 4, 5, 6, 9)]
-        [int]$compressionLevel = 5
+        [int]$compressionLevel = 5,
+    
+    [Parameter(Mandatory=$true)]
+        [validatescript({$_ -match $ValidEmailAddress})]
+        [string]$Email)
+    
     )
 
     # Add Veeam Powershell snapin
