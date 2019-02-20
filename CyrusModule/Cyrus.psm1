@@ -78,9 +78,8 @@ function Backup-VM {
     [ValidateSet(0, 4, 5, 6, 9)]
         [int]$compressionLevel = 5,
     
-    [Parameter(Mandatory=$true)]
-        [validatescript({$_ -match $ValidEmailAddress})]
-        [string]$Email)
+    [validatescript({$_ -match $ValidEmailAddress})]
+        [string]$ProductOwnerEmail
     
     )
 
@@ -178,7 +177,10 @@ function Backup-Directory{
 
         # What compression level to use
         [ValidateSet("Ultra", "High", "Fast", "Low", "None", "Normal")]
-            [string]$compressionLevel = "Fast"
+            [string]$compressionLevel = "Fast",
+    
+        [validatescript({$_ -match $ValidEmailAddress})]
+            [string]$ProductOwnerEmail
     )
     
     $date = Get-Date -Format MM-dd-yyyy-HHmm
@@ -316,7 +318,11 @@ function Backup-SshAppliance{
 
         # Prepend the date time stamp and/or the device's IP to the backup file name?
         [switch]$PrependDate,
-        [switch]$PrependIP
+
+        [switch]$PrependIP,
+    
+        [validatescript({$_ -match $ValidEmailAddress})]
+            [string]$ProductOwnerEmail
     )
 
     #Requires -Modules Posh-SSH
@@ -482,7 +488,10 @@ function Backup-GroupPolicy{
     
         # Where is the log file to be stored?
         [ValidateScript({Test-Path $_})] 
-            [string]$LogDirectory = "$BackupDirectory\Logs"
+            [string]$LogDirectory = "$BackupDirectory\Logs",
+    
+        [validatescript({$_ -match $ValidEmailAddress})]
+            [string]$ProductOwnerEmail
     )
 
     Write-Output "Begennning Group Policy backup..."
@@ -571,7 +580,10 @@ function Backup-MSSQL {
 
         [Parameter(ParameterSetName="Creds",Mandatory=$true)]
             [ValidateScript({Test-Path $_ -PathType 'leaf'})] 
-            [string]$SecurePasswordFile
+            [string]$SecurePasswordFile,
+    
+        [validatescript({$_ -match $ValidEmailAddress})]
+            [string]$ProductOwnerEmail
     )
 
     $date = (Get-Date).ToString("MMddyyHHmm")
