@@ -202,7 +202,7 @@ function Backup-Directory{
             [string]$EncryptionKey,
 
         # Files/folders to exclude from being backed up, regular expression
-        [string]$Exclude = "SomethingThatisNotgoingTobinanactuallpathnameIhope!!!th!s is gh3++0!",
+        [string]$Exclude = "SomethingThatisNotgoingTobinanactuallpathnameIhope!!!th!s is gh3tt0!",
 
         # What compression level to use
         [ValidateSet("Ultra", "High", "Fast", "Low", "None", "Normal")]
@@ -230,7 +230,7 @@ function Backup-Directory{
         
         Write-Output "Incremental backup selected."
 
-        $backupLog = "$BackupDestinationDir\$Name-INCREMENTAL-BackupLog-$date.txt"
+        $backupLog = "$BackupDestinationDir\Logs\$Name-INCREMENTAL-BackupLog-$date.txt"
         
         # Get the creation time of the most recent backup
         $lastWrite = (Get-ChildItem -Path $BackupDestinationDir -Filter "$Name-*").CreationTime | Sort-Object | Select-Object -Last 1
@@ -251,7 +251,7 @@ function Backup-Directory{
     elseif ($Type -eq "Full") {
         Write-Output "Full backup selected."
         
-        $backupLog = "$BackupDestinationDir\$Name-FULL-BackupLog-$date.txt"
+        $backupLog = "$BackupDestinationDir\Logs\$Name-FULL-BackupLog-$date.txt"
         
         $destinationFile = "$BackupDestinationDir\$Name-FULL-$date.7z"
         
