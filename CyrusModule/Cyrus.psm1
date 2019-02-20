@@ -21,6 +21,29 @@ Import-Module 7Zip4PowerShell
 # https://stackoverflow.com/a/48253796
 $ValidEmailAddress = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
 
+# Send alert emails upon backup failure
+function Send-AlertEmail{
+    Param(
+        [Parameter(Mandatory=$true)]
+            [string]$ItemBeingBackedUpName,
+    
+        [string]$ProductOwnerEmail 
+    )
+
+    Write-Output $_
+
+    # Send an email to the help desk and to the product owner with the error
+    # Thanks to https://www.pdq.com/blog/powershell-send-mailmessage-gmail/ for the bulk of the code below. 
+    $From = "fortigate-log@collegedaleacademy.com"
+    $To = @("help@collegedaleacademy.com")
+    if ($ProductOwnerEmail) {$To += $ProductOwnerEmail}
+    $Subject = "$ItemBeingBackedUpName Backup Error"
+    $Body = "There has been an error with the automatic backup of $ItemBeingBackedUpName. -- $_"
+    $SMTPServer = "aspmx.l.google.com"
+    $SMTPPort = "25"
+    Send-MailMessage -From $From -to $To -Subject $Subject -Body $Body -SmtpServer $SMTPServer -port $SMTPPort -UseSsl
+}
+
 # Perform backups
 function Backup-VM {
     <#
@@ -86,8 +109,14 @@ function Backup-VM {
     # Add Veeam Powershell snapin
     Add-PSSnapIn VeeamPSSnapin
 
-    # Secure password string file containing the encryption key for the backup
-    #$encryptionKeyFile = "C:\Repos\CyrusBackupSolution\Other\280299234"
+    ########## Begin Error Handling ##########
+    # Thanks to Keith Hill for this trap idea.
+    # https://stackoverflow.com/questions/14246512/send-an-email-if-a-powershell-script-gets-any-errors-at-all-and-terminate-the-sc
+    # If any terminating error occurs, invoke the Send-AlertEmail function and stop the script
+    trap {Send-AlertEmail -ItemBeingBackedUpName "$vmName-VM" -ProductOwnerEmail $ProductOwnerEmail; Exit 1}
+    # Treat all errors as terminating, useful for the trap statement above
+    $ErrorActionPreference = "Stop"
+    ########## End Error Handling ##########
     
     # Convert the secure password file to a Veeam encryption key
     $encryptionKey = Get-Content $encryptionKeyFile | ConvertTo-SecureString
@@ -183,6 +212,13 @@ function Backup-Directory{
             [string]$ProductOwnerEmail
     )
     
+    ########## Begin Error Handling ##########
+    # If any terminating error occurs, invoke the Send-AlertEmail function and stop the script
+    trap {Send-AlertEmail -ItemBeingBackedUpName "$Name-Directory" -ProductOwnerEmail $ProductOwnerEmail; Exit 1}
+    # Treat all errors as terminating, useful for the trap statement above
+    $ErrorActionPreference = "Stop"
+    ########## End Error Handling ##########
+
     $date = Get-Date -Format MM-dd-yyyy-HHmm
     
     # Get the password to encrypt the backup with
@@ -328,6 +364,10 @@ function Backup-SshAppliance{
     #Requires -Modules Posh-SSH
 
     ########## Begin Error Handling ##########
+    # If any terminating error occurs, invoke the Send-AlertEmail function and stop the script
+    trap {Send-AlertEmail -ItemBeingBackedUpName "$DeviceIPs-SSH" -ProductOwnerEmail $ProductOwnerEmail; Exit 1}
+    # Treat all errors as terminating, useful for the trap statement above
+    $ErrorActionPreference = "Stop"
     ########## End Error Handling ##########
 
     $date = (Get-Date).ToString("MMddyyHHmm")
@@ -494,6 +534,13 @@ function Backup-GroupPolicy{
             [string]$ProductOwnerEmail
     )
 
+    ########## Begin Error Handling ##########
+    # If any terminating error occurs, invoke the Send-AlertEmail function and stop the script
+    trap {Send-AlertEmail -ItemBeingBackedUpName "Group Polcy" -ProductOwnerEmail $ProductOwnerEmail; Exit 1}
+    # Treat all errors as terminating, useful for the trap statement above
+    $ErrorActionPreference = "Stop"
+    ########## End Error Handling ##########
+
     Write-Output "Begennning Group Policy backup..."
 
     $date = Get-Date -Format MM-dd-yyyy-HHmm
@@ -585,6 +632,13 @@ function Backup-MSSQL {
         [validatescript({$_ -match $ValidEmailAddress})]
             [string]$ProductOwnerEmail
     )
+
+    ########## Begin Error Handling ##########
+    # If any terminating error occurs, invoke the Send-AlertEmail function and stop the script
+    trap {Send-AlertEmail -ItemBeingBackedUpName "$Database-MSSQL" -ProductOwnerEmail $ProductOwnerEmail; Exit 1}
+    # Treat all errors as terminating, useful for the trap statement above
+    $ErrorActionPreference = "Stop"
+    ########## End Error Handling ##########
 
     $date = (Get-Date).ToString("MMddyyHHmm")
 
@@ -997,6 +1051,3 @@ function Compare-Files{
         }
     }
 }
-
-# Send alert emails upon backup failure
-function Send-AlertEmail{}
