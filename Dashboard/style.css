@@ -1,0 +1,132 @@
+body {
+    background-color: #bb2b36;
+    color: white;
+}
+h1 {
+    font-size: 48px;
+}
+h2 {
+    font-size: 30px;
+}
+h3 {
+    font-size: 25px;
+}
+p {
+    font-size: 20px;
+}
+a {
+    color: white;
+    text-decoration: none;
+}
+/* BEGIN SIDE BAR NAVIGATION MENU */
+.nav-bar {
+    display: flex;
+    justify-content: center;
+    background-color: darkred;
+}
+.nav-bar a {
+    background-color: #b34f57;
+    margin: 10px;
+    text-align: center;
+    line-height: 50px;
+    width: 200px;
+    padding: 10px;
+    font-size: 25px;
+    border-radius: 25px;
+}
+.nav-bar a:hover {
+    background-color: rgba(102, 102, 102, 0.8);
+    border-radius: 25px;
+    box-shadow: 0px 10px 50px 0px rgba(0,0,0,0.2);
+}
+/* END SIDE BAR NAVIGATION MENU */
+/* BEGIN PAGE HEADER */
+.page-header {
+    text-align: center;
+    margin-bottom: 50px;
+    width: 100%;
+}
+/* END PAGE HEADER */
+/* BEGIN MAIN BODY OF PAGE */
+.page-content {
+    margin-top: 50px;
+    height: 500px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.sub-content {
+    box-shadow: 0px 10px 50px 0px rgba(0,0,0,0.2);
+    width: 400px;
+    float: left;
+    height: 450px;
+    margin-right: 40px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.sub-content-head {
+    text-align: center;
+    background-color: white;
+    color: #666;
+    width: 400px;
+}
+.sub-content li {
+    font-size: 20px;
+}
+.history-link-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    height: 370px;
+}
+.history-link {
+    display: inline-block;
+    margin: 0 20px 0 0;
+}
+/* BEGIN TABLE STYLING */
+.table-container {
+    height: 500px;
+    width: 100%;
+    box-shadow: 0px 10px 50px 0px rgba(0,0,0,0.2);
+    overflow: auto;
+    margin: 0 auto;
+}
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+th {
+    background-color: black;
+    border: 1px solid black;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 20px;
+}
+td {
+    border: 1px solid black;
+    padding: 8px 20px 8px 20px;
+}
+tr:nth-child(even){
+    background-color: #a91a29;
+}
+tr:hover {
+    background-color: rgba(169, 26, 41, 0.5);
+}
+tr:active {
+    background-color: rgba(169, 26, 41, 0.5);
+}
+/* END TABLE STYLING */
+/* END MAIN BODY OF PAGE */
+
+.footer {
+    padding-top: 25px;
+    font-size: 10px;
+    text-align: center;
+    width: 65%;
+    margin-left: 17%;
+}
+.footer a {
+    color: white;
+    text-decoration: none;
+}

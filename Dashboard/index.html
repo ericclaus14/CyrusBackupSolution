@@ -1,0 +1,49 @@
+<head>
+    <title>Cyrus Dashboard</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <!--JS from https://stackoverflow.com/a/42333464 -->
+    <script src="./Scripts/jquery-1.10.2.js"></script>
+</head>
+<body id="index-page">
+<!--Nav bar (code modified from https://stackoverflow.com/a/42333464)-->
+<div id="nav-placeholder"></div>
+<script>$(function(){$("#nav-placeholder").load("./page_elements/nav-bar.html");});</script>
+<!--end of Navigation bar-->
+
+<div class="page-header">
+    <h1>Welcome to the Dashboard for the Cyrus Backup Solution!</h1>
+    <p>Last updated: mm/dd/yyy hh:mm:ss</p>
+</div>
+
+<div class="page-content">
+    <div class="sub-content">
+        <div class="sub-content-head">
+            <h3>VM Backup History</h3>
+        </div>
+        <div class="history-link-container">
+            $vmList
+        </div>
+    </div>
+    <div class="sub-content">
+        <div class="sub-content-head">
+            <h3>Network Infrastructure Backup History</h3>
+        </div>
+        <div class="history-link-container">
+            $networkList
+        </div>
+    </div>
+    <div class="sub-content">
+        <div class="sub-content-head">
+            <h3>App Backup History</h3>
+        </div>
+        <div class="history-link-container">
+            $appList
+        </div>
+    </div>
+</div>
+    
+<!--Footer (code modified from https://stackoverflow.com/a/42333464)-->
+<div id="foot-placeholder"></div>
+<script>$(function(){$("#foot-placeholder").load("./page_elements/foot.html");});</script>
+<!--end of Footer-->
+</body>
