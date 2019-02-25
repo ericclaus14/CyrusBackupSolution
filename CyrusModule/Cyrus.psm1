@@ -918,7 +918,9 @@ function Get-BackupFileHistory{
     
         param(
             [Parameter(Mandatory=$True)]
+                [ValidateScript({Test-Path $_})]
                 [string]$BackupDir,
+                
             [string]$FileExtensionWithoutPeriod="*"
         )
     
