@@ -903,36 +903,62 @@ function New-SecurePassFile {
 function Get-ConfigFile{}
 
 # Get the histories of each backup
+function Show-HumanReadableSize {
+    <#
+    .SYNOPSIS
+        Converts a file's size, specified in bytes as an int, to a human readable form.  
+
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last modified: 2/25/2019
+    #>
+
+    param(
+        [Parameter(Mandatory=$True)][long]$SizeInBytes
+    )
+
+    if ($SizeInBytes -ge 1GB) {
+        $humanReadableSize = "$([math]::Round($SizeInBytes / 1GB,2)) GB"
+    }
+    elseif ($SizeInBytes -ge 1MB) {
+        $humanReadableSize = "$([math]::Round($SizeInBytes / 1MB,2)) MB"
+    }
+    elseif ($SizeInBytes -ge 1KB) {
+        $humanReadableSize = "$([math]::Round($SizeInBytes / 1KB,2)) KB"
+    }
+
+    return $humanReadableSize
+}
 function Get-BackupFileHistory{
-        <#
-        .SYNOPSIS
-            Gets a list of all backup files in a specified backup directory.   
-    
-        .NOTES
-            Author: Eric Claus, IT Assistant, Collegedale Academy, ericclaus@collegedaleacademy.com
-            Last modified: 06/28/2018
-    
-        .COMPONENT
-            Show-HumanReadableSize
-        #>
-    
-        param(
-            [Parameter(Mandatory=$True)]
-                [ValidateScript({Test-Path $_})]
-                [string]$BackupDir,
-                
-            [string]$FileExtensionWithoutPeriod="*"
-        )
-    
-        Get-ChildItem $BackupDir -Filter "*.$FileExtensionWithoutPeriod" | 
-            Sort-Object CreationTime -Descending |  ForEach-Object {
-                [PSCustomObject]@{
-                    Name = $_.FullName
-                    CreationTime = $_.CreationTime
-                    LastModified = $_.LastWriteTime
-                    Size = (Show-HumanReadableSize $_.Length)
-                }
+    <#
+    .SYNOPSIS
+        Gets a list of all backup files in a specified backup directory.   
+
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last modified: 2/25/2019
+
+    .COMPONENT
+        Show-HumanReadableSize
+    #>
+
+    param(
+        [Parameter(Mandatory=$True)]
+            [ValidateScript({Test-Path $_})]
+            [string]$BackupDir,
+
+        [string]$FileExtensionWithoutPeriod="*"
+    )
+
+    Get-ChildItem $BackupDir -Filter "*.$FileExtensionWithoutPeriod" | 
+        Sort-Object CreationTime -Descending |  ForEach-Object {
+            [PSCustomObject]@{
+                Name = $_.FullName
+                CreationTime = $_.CreationTime
+                LastModified = $_.LastWriteTime
+                Size = (Show-HumanReadableSize $_.Length)
             }
+        }
 }
 
 # Automatically assign drive letters for rotating external hard drives
