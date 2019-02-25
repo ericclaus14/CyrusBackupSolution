@@ -1012,7 +1012,62 @@ function Set-DriveLetter{
 # Dynamically create HTML pages for the web dashboard
 function Write-HtmlPages{}
 function Write-IndexPage{}
-function Write-HtmlContent{}
+function Write-HtmlContent{
+    <#
+    .SYNOPSIS
+        Builds the HTML header and other parts of HTML pages excluding the tables created
+        dynamically via the Write-HtmlPages funtion.   
+
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last modified: 2/25/2019
+    #>
+
+    param(
+        [Parameter(Mandatory=$True)]
+            [string]$PageTitle,
+        [Parameter(Mandatory=$True)]
+            [string]$PageHeader,
+        [Parameter(Mandatory=$True)]
+            [string]$Frequency
+    )
+
+    $Head = @"
+        <title>$PageTitle</title>
+        <link href="style.css" rel="stylesheet" type="text/css" />
+        <!-- Sorting Javascript script from: https://www.kryogenix.org/code/browser/sorttable/ -->
+        <script src="./Scripts/sorttable.js"></script>
+        <!--JS from https://stackoverflow.com/a/42333464 -->
+        <script src="./Scripts/jquery-1.10.2.js"></script>
+"@
+
+    $PreContent = @"
+    <!--Nav bar (code modified from https://stackoverflow.com/a/42333464)-->
+    <div id="nav-placeholder"></div>
+    <script>`$(function(){`$("#nav-placeholder").load("./page_elements/nav-bar.html");});</script>
+    <!--end of Navigation bar-->
+
+    <div class="page-header">
+        <h1>$PageHeader</h1>
+        <p>Frequency: $Frequency</p>
+    </div>
+    <div class="page-content">
+    <div class="table-container">
+
+"@
+
+    $PostContent = @"
+    </div>
+    </div>
+
+    <!--Footer (code modified from https://stackoverflow.com/a/42333464)-->
+    <div id="foot-placeholder"></div>
+    <script>`$(function(){`$("#foot-placeholder").load("./page_elements/foot.html");});</script>
+    <!--end of Footer-->
+"@
+
+    return @($Head,$PreContent,$PostContent)
+}
 
 # Manage the TFTP server
 function Start-TftpServer {
