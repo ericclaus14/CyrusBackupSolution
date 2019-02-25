@@ -886,7 +886,8 @@ function New-SecurePassFile {
     #>
 
     Param(
-        [string]$PwdFileDir = "C:\Scripts"
+        [ValidateScript({Test-Path $_})]
+            [string]$PwdFileDir = "C:\Scripts"
     )
     
     $PwdFile = "$PwdFileDir\$(Get-Random)"
@@ -902,7 +903,35 @@ function New-SecurePassFile {
 function Get-ConfigFile{}
 
 # Get the histories of each backup
-function Get-BackupFileHistory{}
+function Get-BackupFileHistory{
+        <#
+        .SYNOPSIS
+            Gets a list of all backup files in a specified backup directory.   
+    
+        .NOTES
+            Author: Eric Claus, IT Assistant, Collegedale Academy, ericclaus@collegedaleacademy.com
+            Last modified: 06/28/2018
+    
+        .COMPONENT
+            Show-HumanReadableSize
+        #>
+    
+        param(
+            [Parameter(Mandatory=$True)]
+                [string]$BackupDir,
+            [string]$FileExtensionWithoutPeriod="*"
+        )
+    
+        Get-ChildItem $BackupDir -Filter "*.$FileExtensionWithoutPeriod" | 
+            Sort-Object CreationTime -Descending |  ForEach-Object {
+                [PSCustomObject]@{
+                    Name = $_.FullName
+                    CreationTime = $_.CreationTime
+                    LastModified = $_.LastWriteTime
+                    Size = (Show-HumanReadableSize $_.Length)
+                }
+            }
+}
 
 # Automatically assign drive letters for rotating external hard drives
 function Set-DriveLetter{
