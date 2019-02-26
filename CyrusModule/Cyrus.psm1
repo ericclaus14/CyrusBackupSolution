@@ -1320,19 +1320,3 @@ function Compare-Files{
         }
     }
 }
-
-Export-ModuleMember -Function "Backup-VM"
-Export-ModuleMember -Function "Backup-Directory"
-Export-ModuleMember -Function "Backup-SshAppliance"
-Export-ModuleMember -Function "Backup-GroupPolicy"
-Export-ModuleMember -Function "Backup-MSSQL"
-Export-ModuleMember -Function "Remove-Backups"
-Export-ModuleMember -Function "Get-SecurePass"
-Export-ModuleMember -Function "New-SecurePassFile"
-Export-ModuleMember -Function "Get-ConfigFile"
-Export-ModuleMember -Function "Get-BackupFileHistory"
-Export-ModuleMember -Function "Set-DriveLetter"
-Export-ModuleMember -Function "Write-HtmlPage"
-Export-ModuleMember -Function "Write-IndexPage"
-Export-ModuleMember -Function "Start-TftpServer"
-Export-ModuleMember -Function "Stop-TftpServer"
