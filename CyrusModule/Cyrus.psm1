@@ -17,6 +17,9 @@
 Import-Module Posh-SSH
 Import-Module 7Zip4PowerShell
 
+$CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
+$WebDashboardRootDirectory = "$CBSRootDirectory\Dashboard"
+
 # Thanks to Trevor Sullivan for this regular expression!
 # https://stackoverflow.com/a/48253796
 $ValidEmailAddress = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
@@ -1066,14 +1069,59 @@ function Write-HtmlContent{
 
     return @($Head,$PreContent,$PostContent)
 }
-function Write-HtmlPages{}
+function Write-HtmlPage{
+    <#
+    .SYNOPSIS
+        Creates HTML pages containing histories of various items backup history.    
+
+    .DESCRIPTION
+        This script contains a list of all backups, and their backup directories, to check the
+        history of. The script takes this list and uses the Show-BackupStatusHistory function
+        to get a table containing all backup files for each item being checked. It then creates
+        HTML pages containing these tables, one for each backed up item listed in the script.
+
+        Requirements:
+            * Must have access to (ie. on the same user account and computer as) the secure password file containing the backup VLAN admin account password.
+
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last modified: 2/26/2019
+
+    .COMPONENT
+        Show-BackupStatusHistory, Write-HtmlContent, ConvertTo-Html, Write-IndexPage
+    #>
+
+    param(
+        [Parameter(Mandatory=$True)]
+            [ValidateScript({Test-Path $_})]
+            [string]$BackupDirPath,
+        [Parameter(Mandatory=$True)]
+            [string]$HtmlFileName,
+        [Parameter(Mandatory=$True)]
+            [string]$HtmlPageTitle,
+        [string]$FileExtensionWithoutPeriod = "*"
+    )
+
+    $Head, $PreContent, $PostContent = Write-HtmlContent -PageTitle $HtmlPageTitle -PageHeader $HtmlPageTitle
+
+    if ($HtmlFileName -notlike "*.html") {
+        $HtmlFileName = "$HtmlFileName.html"
+    }
+
+    Get-BackupFileHistory -BackupDir $BackupDirPath -FileExtensionWithoutPeriod $fileExtension | 
+        ConvertTo-Html -Head $Head -PreContent $PreContent -PostContent $PostContent | 
+        Out-File -Encoding ascii "$WebDashboardRootDirectory\$fileName"
+
+    Write-IndexPage
+}
 function Write-IndexPage{
+    
     <#
 .SYNOPSIS
     Builds the home page (index.html) for the Cyrus Backup Solution Dashboard.   
 
 .DESCRIPTION
-    This script gets a list of all of the backup history pages in the Cyrus Dashboard directory 
+    This function gets a list of all of the backup history pages in the Cyrus Dashboard directory 
     (all HTML files whose names start with "History_"). Then, it compiles the HTML for the index
     page and creates index.html. 
 
@@ -1085,24 +1133,16 @@ function Write-IndexPage{
     Get-ChildItem, Out-File
 #>
 
-$ParentDir = Split-Path $PSScriptRoot -Parent
+param(
+    [string]$RootDirectory = $WebDashboardRootDirectory
+)
 
 $PageTitle = "Cyrus Dashboard"
 $PageHeader = "Welcome to the Dashboard for the Cyrus Backup Solution!"
-<# 
-$LinkList = ""
 
-Get-ChildItem $ParentDir -Filter "History_*.html" | Select-Object Name | 
-    ForEach-Object {
-        $FileName = $_.Name
-        $DisplayName = ($_.Name).Split("_")[1]
-        $DisplayName = $DisplayName.Split(".")[0]
-        $LinkList += "<a class='history-link' href='$FileName' title='$DisplayName'>$DisplayName</a><br/>"
-    }
- #>
 $vmList = ""
 
-Get-ChildItem $ParentDir -Filter "History_VM*.html" | Select-Object Name | 
+Get-ChildItem $RootDirectory -Filter "History_VM*.html" | Select-Object Name | 
     ForEach-Object {
         $FileName = $_.Name
         $DisplayName = ($_.Name).Split("-")[1]
@@ -1112,7 +1152,7 @@ Get-ChildItem $ParentDir -Filter "History_VM*.html" | Select-Object Name |
 
 $networkList = ""
 
-Get-ChildItem $ParentDir -Filter "History_Network*.html" | Select-Object Name | 
+Get-ChildItem $RootDirectory -Filter "History_Network*.html" | Select-Object Name | 
     ForEach-Object {
         $FileName = $_.Name
         $DisplayName = ($_.Name).Split("-")[1]
