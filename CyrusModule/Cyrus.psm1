@@ -19,6 +19,7 @@ Import-Module 7Zip4PowerShell
 
 $CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
 $WebDashboardRootDirectory = "$CBSRootDirectory\Dashboard"
+$HelpDeskEmail = "help@collegedaleacademy.com"
 
 # Thanks to Trevor Sullivan for this regular expression!
 # https://stackoverflow.com/a/48253796
@@ -38,7 +39,7 @@ function Send-AlertEmail{
     # Send an email to the help desk and to the product owner with the error
     # Thanks to https://www.pdq.com/blog/powershell-send-mailmessage-gmail/ for the bulk of the code below. 
     $From = "fortigate-log@collegedaleacademy.com"
-    $To = @("help@collegedaleacademy.com")
+    $To = @($HelpDeskEmail)
     if ($ProductOwnerEmail) {$To += $ProductOwnerEmail}
     $Subject = "$ItemBeingBackedUpName Backup Error"
     $Body = "There has been an error with the automatic backup of $ItemBeingBackedUpName. -- $_"
