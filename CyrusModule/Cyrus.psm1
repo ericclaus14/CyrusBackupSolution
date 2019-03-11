@@ -903,7 +903,16 @@ function New-SecurePassFile {
 }
 
 # Read in and process the config file
-function Get-ConfigFile{}
+function Get-ConfigFile{
+    <#
+    .SYNOPSIS
+        Reads in parses Cyrus's config file.  
+
+    .NOTES
+        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+        Last modified: 3/11/2019
+    #>
+}
 
 # Get the histories of each backup
 function Show-HumanReadableSize {
