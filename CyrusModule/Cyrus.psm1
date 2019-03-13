@@ -903,6 +903,8 @@ function New-SecurePassFile {
 }
 
 # Read in and process the config file
+# Thanks to Oliver Lipkau for this function
+# https://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91/
 Function Get-IniContent {  
     <#  
     .Synopsis  
