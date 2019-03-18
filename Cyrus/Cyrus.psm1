@@ -355,10 +355,10 @@ function Backup-SshAppliance{
         # Time to wait (sleep) in seconds between sending commands to the Shell Stream
         [int]$CommandWaitTime = 10,
 
-        # Prepend the date time stamp and/or the device's IP to the backup file name?
-        [switch]$PrependDate,
+        # Don't prepend the date time stamp and/or the device's IP to the backup file name?
+        [switch]$DoNotPrependDate,
 
-        [switch]$PrependIP,
+        [switch]$DoNotPrependIP,
     
         [validatescript({$_ -match $ValidEmailAddress})]
             [string]$ProductOwnerEmail
@@ -428,6 +428,12 @@ function Backup-SshAppliance{
         # Get the name of the new backup file
         $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
         
+        $PrependDate = $true
+        $PrependIP = $true
+
+        if (!($DoNotPrependDate)) {$PrependDate = $false}
+        if (!($DoNotPrependIP)) {$PrependIP = $false}
+
         # Rename if file if the $PrependDate and/or $PrependIP switches are set
         if ($PrependDate) {
             Rename-Item $($newFileName.FullName) -NewName "$date-$($newFileName.Name)"
