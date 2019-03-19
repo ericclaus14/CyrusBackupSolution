@@ -28,6 +28,7 @@ foreach ($backupJob in $configFile.Keys) {
 
     # Properties not common to all backup types
     $hypervisor = $configFile[$backupJob].Host
+    $sourcePath = $configFile[$backupJob].SourcePath
     $netPath = $configFile[$backupJob].NetPath
     $serverInstance = $configFile[$backupJob].ServerInstance
     $database = $configFile[$backupJob].Database
@@ -36,7 +37,7 @@ foreach ($backupJob in $configFile.Keys) {
     $encryptionKeyFile = $configFile[$backupJob].EncryptionKeyFile
     $commandList = $configFile[$backupJob].CommandList
     # Convert command list from string to array so it can be iterated through
-    $cmdList = $commandList.split(",")
+    if ($commandList) {$cmdList = $commandList.split(",")}
 
     # Define backup types and call their corresponding backup functions 
     # Based on the Type property specified in the config file
@@ -49,10 +50,10 @@ foreach ($backupJob in $configFile.Keys) {
             Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner
         }
         "DirectoryFull" {
-            Backup-Directory -BackupSource $netPath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full 
+            Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full 
         }
         "DirectoryIncremental" {
-            Backup-Directory -BackupSource $netPath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental
+            Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental
         }
         "GPO" {
             Backup-GroupPolicy -BackupDirectory $bkDir -ProductOwnerEmail $owner
