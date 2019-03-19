@@ -31,6 +31,12 @@ foreach ($backupJob in $configFile.Keys) {
     $netPath = $configFile[$backupJob].NetPath
     $serverInstance = $configFile[$backupJob].ServerInstance
     $database = $configFile[$backupJob].Database
+    $passwordFile = $configFile[$backupJob].PasswordFile
+    $userName = $configFile[$backupJob].UserName
+    $encryptionKeyFile = $configFile[$backupJob].EncryptionKeyFile
+    $commandList = $configFile[$backupJob].CommandList
+    # Convert command list from string to array so it can be iterated through
+    $cmdList = $commandList.split(",")
 
     # Define backup types and call their corresponding backup functions 
     # Based on the Type property specified in the config file
@@ -52,16 +58,16 @@ foreach ($backupJob in $configFile.Keys) {
             Backup-GroupPolicy -BackupDirectory $bkDir -ProductOwnerEmail $owner
         }
         "SSH-Full" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $commands -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner
+            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner
         }
         "SSH-Full-SSHShellStream" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $commands -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -SshShellStream
+            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -SshShellStream
         }
         "SSH-Incremental" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $commands -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental
+            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental
         }
         "SSH-Incremental-SSHShellStream" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $commands -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
+            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
         }
         "MS-SQL" {
             Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
