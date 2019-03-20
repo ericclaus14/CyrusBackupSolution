@@ -35,45 +35,54 @@ foreach ($backupJob in $configFile.Keys) {
     $passwordFile = $configFile[$backupJob].PasswordFile
     $userName = $configFile[$backupJob].UserName
     $encryptionKeyFile = $configFile[$backupJob].EncryptionKeyFile
+    $backupFileExetnsion = $configFile[$backupJob].BackupFileExtension
     $commandList = $configFile[$backupJob].CommandList
     # Convert command list from string to array so it can be iterated through
     if ($commandList) {$cmdList = $commandList.split(",")}
 
-    # Define backup types and call their corresponding backup functions 
+    # Define backup types and call their corresponding backup functions
+    # Then, clean up their backups that are older than their retention period 
     # Based on the Type property specified in the config file
     Switch ($type)
     {
         "VM-Linux" {
-            Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner -disableQuiesce:$True 
+            #Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner -disableQuiesce:$True 
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension "vbk"
         }
         "VM-Windows" {
-            Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner
+            #Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension "vbk"
         }
         "DirectoryFull" {
-            Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full 
+            #Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full 
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension "7z"
         }
         "DirectoryIncremental" {
-            Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental
+            #Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension "7z"
         }
         "GPO" {
-            Backup-GroupPolicy -BackupDirectory $bkDir -ProductOwnerEmail $owner
+            #Backup-GroupPolicy -BackupDirectory $bkDir -ProductOwnerEmail $owner
         }
         "SSH-Full" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner
+            #Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
         }
         "SSH-Full-SSHShellStream" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -SshShellStream
+            #Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -SshShellStream
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
         }
         "SSH-Incremental" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental
+            #Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
         }
         "SSH-Incremental-SSHShellStream" {
-            Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
+            #Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile = $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
         }
         "MS-SQL" {
-            Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+            #Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+            Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension "bak"           
         }
     }
-
-
 }
