@@ -908,7 +908,7 @@ function New-SecurePassFile {
     Write-Output $PwdFile
 }
 
-# Read in and process the config file
+# Read in the config file, return hash table of hash tables
 # Thanks to Oliver Lipkau for this function
 # https://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91/
 Function Get-IniContent {  
@@ -1016,18 +1016,6 @@ Function Get-IniContent {
     End  
         {Write-Verbose "$($MyInvocation.MyCommand.Name):: Function ended"}  
 } 
-function Get-ConfigFile{
-    <#
-    .SYNOPSIS
-        Reads in parses Cyrus's config file.  
-
-    .NOTES
-        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 3/11/2019
-    #>
-
-
-}
 
 # Get the histories of each backup
 function Show-HumanReadableSize {
