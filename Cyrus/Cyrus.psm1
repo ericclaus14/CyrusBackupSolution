@@ -1192,9 +1192,6 @@ function Write-HtmlPage{
         to get a table containing all backup files for each item being checked. It then creates
         HTML pages containing these tables, one for each backed up item listed in the script.
 
-        Requirements:
-            * Must have access to (ie. on the same user account and computer as) the secure password file containing the backup VLAN admin account password.
-
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
         Last modified: 2/26/2019
