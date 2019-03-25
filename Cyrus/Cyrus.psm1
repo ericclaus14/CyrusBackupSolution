@@ -229,6 +229,8 @@ function Backup-Directory{
     
     Write-Verbose "Encryption password retrieved. Starting backup."
 
+    Write-Output "Backing up $BackupSource..."
+
     if ($Type -eq "Incremental") {
         
         Write-Output "Incremental backup selected."
@@ -908,6 +910,54 @@ function New-SecurePassFile {
     Write-Output $PwdFile
 }
 
+# Automatically assign drive letters for rotating external hard drives
+function Set-DriveLetter{
+    <#
+.SYNOPSIS
+    This function changes the assigned drive letters of the NAS and VM backup partitions on the Backup External Hard Drives.
+ 
+.DESCRIPTION
+    This function can be called from the Cyrus Backup Solution core script to make sure that all drives and partitions
+    on any removable media (such as external hard drives) that are rotated out have the correct assigned drive letters.
+    This eliminates the need to manually change the assigned drive letters. 
+
+    Drives are selected via a wild card match of their name, with the percent (%) sign being a wild card character. 
+    For example, if you wish to change the drive letter of a drive named "SSS_7829DH", pass the following into the 
+    $DriveOrPartitionName parameter (without the quotes): "SSS%"".
+
+.EXAMPLE
+    # Set the assigned drive letter of drive "VM Backup Partition [1|2|3]" to "V".
+    Set-DriveLetter -DriveOrPartitionName "VM Backup %" -DriveLetter "v"
+ 
+.NOTES
+    Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
+    Last Modified: 2/18/2019
+ 
+.LINK
+    https://blogs.technet.microsoft.com/heyscriptingguy/2011/03/14/change-drive-letters-and-labels-via-a-simple-powershell-command/
+    https://stackoverflow.com/questions/46557186/wildcard-search-in-filter
+ 
+.COMPONENT
+    Get-WmiObject -Class win32_volume
+#>
+ 
+[CmdletBinding()]
+
+Param(
+    [Parameter(Mandatory=$true)]
+        [string]$DriveOrPartitionName,
+
+    [Parameter(Mandatory=$true)]
+        [string]$DriveLetter
+)
+
+$filterString = "Label like '$DriveOrPartitionName'"
+
+$drive = Get-WmiObject -Class win32_volume -Filter $filterString
+$drive.DriveLetter = "$($DriveLetter):"
+$drive.Put() | Out-Null
+}
+
 # Read in the config file, return hash table of hash tables
 # Thanks to Oliver Lipkau for this function
 # https://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91/
@@ -1076,54 +1126,6 @@ function Get-BackupFileHistory{
         }
 }
 
-# Automatically assign drive letters for rotating external hard drives
-function Set-DriveLetter{
-        <#
-    .SYNOPSIS
-        This function changes the assigned drive letters of the NAS and VM backup partitions on the Backup External Hard Drives.
-     
-    .DESCRIPTION
-        This function can be called from the Cyrus Backup Solution core script to make sure that all drives and partitions
-        on any removable media (such as external hard drives) that are rotated out have the correct assigned drive letters.
-        This eliminates the need to manually change the assigned drive letters. 
-
-        Drives are selected via a wild card match of their name, with the percent (%) sign being a wild card character. 
-        For example, if you wish to change the drive letter of a drive named "SSS_7829DH", pass the following into the 
-        $DriveOrPartitionName parameter (without the quotes): "SSS%"".
-
-    .EXAMPLE
-        # Set the assigned drive letter of drive "VM Backup Partition [1|2|3]" to "V".
-        Set-DriveLetter -DriveOrPartitionName "VM Backup %" -DriveLetter "v"
-     
-    .NOTES
-        Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last Modified: 2/18/2019
-     
-    .LINK
-        https://blogs.technet.microsoft.com/heyscriptingguy/2011/03/14/change-drive-letters-and-labels-via-a-simple-powershell-command/
-        https://stackoverflow.com/questions/46557186/wildcard-search-in-filter
-     
-    .COMPONENT
-        Get-WmiObject -Class win32_volume
-    #>
-     
-    [CmdletBinding()]
-
-    Param(
-        [Parameter(Mandatory=$true)]
-            [string]$DriveOrPartitionName,
-
-        [Parameter(Mandatory=$true)]
-            [string]$DriveLetter
-    )
-
-    $filterString = "Label like '$DriveOrPartitionName'"
-
-    $drive = Get-WmiObject -Class win32_volume -Filter $filterString
-    $drive.DriveLetter = "$($DriveLetter):"
-    $drive.Put() | Out-Null
-}
-
 # Dynamically create HTML pages for the web dashboard
 function Write-HtmlContent{
     <#
@@ -1223,9 +1225,8 @@ function Write-HtmlPage{
         ConvertTo-Html -Head $Head -PreContent $PreContent -PostContent $PostContent | 
         Out-File -Encoding ascii "$WebDashboardRootDirectory\$HtmlFileName"
 }
-function Write-IndexPage{
-    
-    <#
+function Write-IndexPage{   
+<#
 .SYNOPSIS
     Builds the home page (index.html) for the Cyrus Backup Solution Dashboard.   
 
@@ -1271,7 +1272,7 @@ Get-ChildItem $RootDirectory -Filter "History_Network*.html" | Select-Object Nam
 
 $appList = ""
 
-Get-ChildItem $ParentDir -Filter "History_*.html" | 
+Get-ChildItem $RootDirectory -Filter "History_*.html" | 
     Where-Object {($_.Name -NotLike "History_Network*") -and ($_.Name -NotLike "History_VM*")} | 
     Select-Object Name | 
     ForEach-Object {
@@ -1318,7 +1319,7 @@ $Page = @"
         </div>
         <div class="sub-content">
             <div class="sub-content-head">
-                <h3>App Backup History</h3>
+                <h3>Other Backup History</h3>
             </div>
             <div class="history-link-container">
                 $appList
@@ -1333,14 +1334,14 @@ $Page = @"
 </body>
 "@
 
-$Page | Out-File "$WebDashboardRootDirectory\Index.html" -Encoding ascii
+$Page | Out-File "$RootDirectory\Index.html" -Encoding ascii
 }
 
 # Manage the TFTP server
 function Start-TftpServer {
     # Start SolarWinds TFTP Server
     Write-Output "Starting TFTP server..."
-    Start-Service -Name “SolarWinds TFTP Server”
+    Start-Service -Name "SolarWinds TFTP Server"
 
     # Enable the TFTP firewall rule
     Write-Output "Enabling TFTP firewall rule..."
