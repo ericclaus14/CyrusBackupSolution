@@ -123,7 +123,12 @@ foreach ($backupJob in $configFile.Keys) {
                 Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
             }
             "MS-SQL" {
-                Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+                if ($userName) {
+                    Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+                }
+                else {
+                    Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -ProductOwnerEmail $owner
+                }
                 Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension "bak"           
             }
         }
