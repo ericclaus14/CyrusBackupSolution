@@ -13,6 +13,14 @@
     https://github.com/ericclaus14/CyrusBackupSolution
 #>
 
+[CmdletBinding()]
+Param()
+
+if ($VerbosePreference -eq "Continue") {echo "it's verbose!"}
+
+$date = Get-Date -Format MM-dd-yyyy-HHmm
+Start-Transcript -Path "$CBSRootDir\$date.transcript"
+
 # Read in config file to variable
 $configFile = Get-IniContent -FilePath C:\Repos\CyrusBackupSolution\Cyrus-Config.ini
 
@@ -82,6 +90,16 @@ foreach ($backupJob in $configFile.Keys) {
     else {Throw "Error: Valid frequency value not set for backup $name."}
 
     if ($toBeRun) {
+        Write-Output "`nBacking up $name."
+
+        # Simulate Write-Verbose functionality (Write-Verbose doesn't output hash tables correctly)
+        if ($VerbosePreference -eq "Continue") {
+            $defaultTextColor = $host.ui.RawUI.ForegroundColor
+            $host.ui.RawUI.ForegroundColor = "Yellow"
+            Write-Output $configFile[$backupJob]
+            $host.ui.RawUI.ForegroundColor = $defaultTextColor
+        }
+
         # Define backup types and call their corresponding backup functions
         # Then, clean up their backups that are older than their retention period 
         # Based on the Type property specified in the config file
@@ -89,69 +107,142 @@ foreach ($backupJob in $configFile.Keys) {
         {
             "VM-Linux" {
                 $backupFileExetnsion = "vbk"
-                Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner -disableQuiesce:$True 
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_VM-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner -disableQuiesce:$True -Verbose
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_VM-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose    
+                }
+                else {
+                    Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner -disableQuiesce:$True 
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_VM-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "VM-Windows" {
                 $backupFileExetnsion = "vbk"
-                Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_VM-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner -Verbose
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_VM-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose    
+                }
+                else {
+                    Backup-VM -vmName $name -hypervisorName $hypervisor -backupDirectory $bkDir -encryptionKeyFile $encryptionKeyFile -ProductOwnerEmail $owner
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_VM-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "DirectoryFull" {
                 $backupFileExetnsion = "7z"
                 if (!($exclude)) {$exclude = "SomethingThatisNotgoingTobinanactuallpathnameIhope!!!th!s is gh3tt0!"}
-                Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full 
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full -Verbose
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                }
+                else {
+                    Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full 
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "DirectoryIncremental" {
                 $backupFileExetnsion = "7z"
                 if (!($exclude)) {$exclude = "SomethingThatisNotgoingTobinanactuallpathnameIhope!!!th!s is gh3tt0!"}
-                Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental -Verbose
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                }
+                else {
+                    Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "GPO" {
-                Backup-GroupPolicy -BackupDirectory $bkDir -ProductOwnerEmail $owner
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_GPO-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-GroupPolicy -BackupDirectory $bkDir -ProductOwnerEmail $owner -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_GPO-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -Verbose
+                }
+                else {
+                    Backup-GroupPolicy -BackupDirectory $bkDir -ProductOwnerEmail $owner
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_GPO-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency
+                }
             }
             "SSH-Full" {
-                Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Verbose
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                }
+                else {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "SSH-Full-SSHShellStream" {
-                Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -SshShellStream
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -SshShellStream -Verbose
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                }
+                else {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -SshShellStream
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "SSH-Incremental" {
-                Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -Verbose
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose                
+                }
+                else {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "SSH-Incremental-SSHShellStream" {
-                Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                if ($VerbosePreference -eq "Continue") {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream -Verbose 
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                }
+                else {
+                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
             }
             "MS-SQL" {
                 $backupFileExetnsion = "bak"
-                if ($userName) {
-                    Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+                if ($VerbosePreference -eq "Continue") {
+                    if ($userName) {
+                        Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Verbose
+                    }
+                    else {
+                        Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -ProductOwnerEmail $owner -Verbose
+                    }
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_DB-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
                 }
                 else {
-                    Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -ProductOwnerEmail $owner
+                    if ($userName) {
+                        Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+                    }
+                    else {
+                        Backup-MSSQL -ServerAndInstance $serverInstance -Database $database -BackupDirectory $bkDir -ProductOwnerEmail $owner
+                    }
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion   
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_DB-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion        
                 }
-                Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion   
-                Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_DB-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion        
             }
-        }
-
-        
+        }   
     }
-
     Write-IndexPage
 }
+
+Stop-Transcript
