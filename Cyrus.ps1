@@ -16,13 +16,12 @@
 [CmdletBinding()]
 Param()
 
-if ($VerbosePreference -eq "Continue") {echo "it's verbose!"}
-
+$CBSRootDir = "C:\Repos\CyrusBackupSolution"
 $date = Get-Date -Format MM-dd-yyyy-HHmm
-Start-Transcript -Path "$CBSRootDir\$date.transcript"
+Start-Transcript -Path "$CBSRootDir\Transcripts\$date.transcript"
 
 # Read in config file to variable
-$configFile = Get-IniContent -FilePath C:\Repos\CyrusBackupSolution\Cyrus-Config.ini
+$configFile = Get-IniContent -FilePath "$CBSRootDir\Cyrus-Config.ini"
 
 # Loop through each backup job defined inside of the config file
 foreach ($backupJob in $configFile.Keys) {
@@ -90,6 +89,7 @@ foreach ($backupJob in $configFile.Keys) {
     else {Throw "Error: Valid frequency value not set for backup $name."}
 
     if ($toBeRun) {
+        Write-Output "`n--------------------------------"
         Write-Output "`nBacking up $name."
 
         # Simulate Write-Verbose functionality (Write-Verbose doesn't output hash tables correctly)
@@ -244,5 +244,5 @@ foreach ($backupJob in $configFile.Keys) {
     }
     Write-IndexPage
 }
-
+Write-Output "`n"
 Stop-Transcript

@@ -1,0 +1,39 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20190326102415
+Username: AD\ericclausadmin
+RunAs User: AD\ericclausadmin
+Machine: CBS1 (Microsoft Windows NT 10.0.14393.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command & 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\modules\PowerShellEditorServices\Start-EditorServices.ps1' -HostName 'Visual Studio Code Host' -HostProfileId 'Microsoft.VSCode' -HostVersion '1.11.0' -AdditionalModules @('PowerShellEditorServices.VSCode') -BundledModulesPath 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\modules' -EnableConsoleRepl -LogLevel 'Normal' -LogPath 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\logs\1553607335-a07294bd-dcee-41da-962b-ae51e47469fd1553607331353\EditorServices.log' -SessionDetailsPath 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\sessions\PSES-VSCode-3224-799420' -FeatureFlags @()
+Process ID: 9020
+PSVersion: 5.1.14393.2248
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.14393.2248
+BuildVersion: 10.0.14393.2248
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Repos\CyrusBackupSolution\Transcripts\03-26-2019-1024.transcript
+
+--------------------------------
+
+Backing up VeeamBackup.
+Backing up VeeamBackup on CBS1\VEEAMSQL2016 to C:\Backup\DB\VeeamBackup-0326191024.bak...
+Backup of VeeamBackup complete.
+Performing cleanup of the VeeamBackup backups.
+
+--------------------------------
+
+Backing up CyrusRepo.
+Backing up C:\Repos\CyrusBackupSolution...
+Full backup selected.
+Full backup complete.
+Directory backup of C:\Repos\CyrusBackupSolution complete.
+Performing cleanup of the CyrusRepo backups.
+
+**********************
+Windows PowerShell transcript end
+End time: 20190326102426
+**********************
