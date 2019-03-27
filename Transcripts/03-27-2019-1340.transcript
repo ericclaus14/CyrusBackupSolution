@@ -1,0 +1,42 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20190327134014
+Username: AD\ericclausadmin
+RunAs User: AD\ericclausadmin
+Machine: CBS1 (Microsoft Windows NT 10.0.14393.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command & 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\modules\PowerShellEditorServices\Start-EditorServices.ps1' -HostName 'Visual Studio Code Host' -HostProfileId 'Microsoft.VSCode' -HostVersion '1.11.0' -AdditionalModules @('PowerShellEditorServices.VSCode') -BundledModulesPath 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\modules' -EnableConsoleRepl -LogLevel 'Normal' -LogPath 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\logs\1553702950-9d0a06ff-464a-403d-ac6b-8015a7a60d4c1553702943320\EditorServices.log' -SessionDetailsPath 'C:\Users\ericclausadmin\.vscode\extensions\ms-vscode.powershell-1.11.0\sessions\PSES-VSCode-7592-594247' -FeatureFlags @()
+Process ID: 7608
+PSVersion: 5.1.14393.2248
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.14393.2248
+BuildVersion: 10.0.14393.2248
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Repos\CyrusBackupSolution\Transcripts\03-27-2019-1340.transcript
+
+--------------------------------
+
+Backing up PrimaryFirewall, SSH-Full.
+Starting TFTP server...
+Enabling TFTP firewall rule...
+
+Backing up 172.17.5.2...
+
+
+Host       : 172.17.5.2
+Output     : {FGT1KC3914802826 # Please wait..., Connect to tftp server 172.17.5.100 ..., #, Send config file to tftp server OK....}
+ExitStatus : 0
+
+True
+Backup of 172.17.5.2 is complete - 0327191340.
+Stopping TFTP server...
+Disabling TFTP firewall rule...
+
+Performing cleanup of the PrimaryFirewall backups.
+
+--------------------------------
+
+Backing up Pandora, VM-Linux.

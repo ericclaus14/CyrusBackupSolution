@@ -1260,26 +1260,34 @@ Get-ChildItem $RootDirectory -Filter "History_VM*.html" | Select-Object Name |
         $vmList += "<a class='history-link' href='$FileName' title='$DisplayName'>$DisplayName</a><br/>"
     }
 
-$networkList = ""
+$dirSshList = ""
 
-Get-ChildItem $RootDirectory -Filter "History_Network*.html" | Select-Object Name | 
+Get-ChildItem $RootDirectory -Filter "History_Dir*.html" | Select-Object Name | 
     ForEach-Object {
         $FileName = $_.Name
         $DisplayName = ($_.Name).Split("-")[1]
         $DisplayName = $DisplayName.Split(".")[0]
-        $networkList += "<a class='history-link' href='$FileName' title='$DisplayName'>$DisplayName</a><br/>"
+        $dirSshList += "<a class='history-link' href='$FileName' title='$DisplayName'>$DisplayName</a><br/>"
     }
 
-$appList = ""
+Get-ChildItem $RootDirectory -Filter "History_SSH*.html" | Select-Object Name | 
+    ForEach-Object {
+        $FileName = $_.Name
+        $DisplayName = ($_.Name).Split("-")[1]
+        $DisplayName = $DisplayName.Split(".")[0]
+        $dirSshList += "<a class='history-link' href='$FileName' title='$DisplayName'>$DisplayName</a><br/>"
+    }
+
+$otherList = ""
 
 Get-ChildItem $RootDirectory -Filter "History_*.html" | 
-    Where-Object {($_.Name -NotLike "History_Network*") -and ($_.Name -NotLike "History_VM*")} | 
+    Where-Object {($_.Name -NotLike "History_SSH*") -and ($_.Name -NotLike "History_VM*") -and ($_.Name -NotLike "History_Dir*")} | 
     Select-Object Name | 
     ForEach-Object {
         $FileName = $_.Name
         $DisplayName = ($_.Name).Split("_")[1]
         $DisplayName = $DisplayName.Split(".")[0]
-        $appList += "<a class='history-link' href='$FileName' title='$DisplayName'>$DisplayName</a><br/>"
+        $otherList += "<a class='history-link' href='$FileName' title='$DisplayName'>$DisplayName</a><br/>"
     }
 
 $Page = @"
@@ -1311,10 +1319,10 @@ $Page = @"
         </div>
         <div class="sub-content">
             <div class="sub-content-head">
-                <h3>Network Infrastructure Backup History</h3>
+                <h3>Directory and SSH Backup History</h3>
             </div>
             <div class="history-link-container">
-                $networkList
+                $dirSshList
             </div>
         </div>
         <div class="sub-content">
@@ -1322,7 +1330,7 @@ $Page = @"
                 <h3>Other Backup History</h3>
             </div>
             <div class="history-link-container">
-                $appList
+                $otherList
             </div>
         </div>
     </div>

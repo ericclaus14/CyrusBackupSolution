@@ -137,12 +137,12 @@ foreach ($backupJob in $configFile.Keys) {
                 if ($VerbosePreference -eq "Continue") {
                     Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full -Verbose
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
-                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Dir-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
                 }
                 else {
                     Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Full 
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Dir-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
                 }
             }
             "DirectoryIncremental" {
@@ -151,12 +151,12 @@ foreach ($backupJob in $configFile.Keys) {
                 if ($VerbosePreference -eq "Continue") {
                     Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental -Verbose
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
-                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Dir-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
                 }
                 else {
                     Backup-Directory -BackupSource $sourcePath -BackupDestinationDir $bkDir -Name $name -EncryptionKey $encryptionKeyFile -Exclude $exclude -ProductOwnerEmail $owner -Type Incremental
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
-                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Network-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Dir-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
                 }
             }
             "GPO" {
