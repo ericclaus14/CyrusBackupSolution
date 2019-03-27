@@ -90,7 +90,7 @@ foreach ($backupJob in $configFile.Keys) {
 
     if ($toBeRun) {
         Write-Output "`n--------------------------------"
-        Write-Output "`nBacking up $name."
+        Write-Output "`nBacking up $name, $type."
 
         # Simulate Write-Verbose functionality (Write-Verbose doesn't output hash tables correctly)
         if ($VerbosePreference -eq "Continue") {

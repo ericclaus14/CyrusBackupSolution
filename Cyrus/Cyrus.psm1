@@ -19,7 +19,7 @@ Import-Module 7Zip4PowerShell
 
 $CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
 $WebDashboardRootDirectory = "$CBSRootDirectory\Dashboard"
-$HelpDeskEmail = "help@collegedaleacademy.com"
+$HelpDeskEmail = "ericclaus@collegedaleacademy.com"
 
 # Thanks to Trevor Sullivan for this regular expression!
 # https://stackoverflow.com/a/48253796
@@ -433,8 +433,8 @@ function Backup-SshAppliance{
         $PrependDate = $true
         $PrependIP = $true
 
-        if (!($DoNotPrependDate)) {$PrependDate = $false}
-        if (!($DoNotPrependIP)) {$PrependIP = $false}
+        if (($DoNotPrependDate)) {$PrependDate = $false}
+        if (($DoNotPrependIP)) {$PrependIP = $false}
 
         # Rename if file if the $PrependDate and/or $PrependIP switches are set
         if ($PrependDate) {
@@ -552,7 +552,7 @@ function Backup-GroupPolicy{
     $ErrorActionPreference = "Stop"
     ########## End Error Handling ##########
 
-    Write-Output "Begennning Group Policy backup..."
+    Write-Output "Beginning Group Policy backup..."
 
     $date = Get-Date -Format MM-dd-yyyy-HHmm
 
@@ -585,9 +585,9 @@ function Backup-GroupPolicy{
         If (!(Test-Path $path)) {
             mkdir $path
             Backup-GPO -Name $name -Path $path
-            Write-Output ("{0} has been backed up." -f $name.PadRight(40,"-")) | Tee-Object -FilePath $log -Append
+            Write-Output ("GPO {0} has been backed up." -f $name.PadRight(40,"-")) | Tee-Object -FilePath $log -Append
         }
-        Else {Write-Output ("{0} not backed up." -f $name.PadRight(40,"-")) | Tee-Object -FilePath $log -Append}
+        Else {Write-Output ("GPO {0} not backed up." -f $name.PadRight(40,"-")) | Tee-Object -FilePath $log -Append}
     }
 }
 function Backup-MSSQL {
