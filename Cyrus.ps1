@@ -107,6 +107,8 @@ foreach ($backupJob in $configFile.Keys) {
         # Define backup types and call their corresponding backup functions
         # Then, clean up their backups that are older than their retention period 
         # Based on the Type property specified in the config file
+        # If you want to define a new backup type, add it as an option to this switch statement
+        # and call the necessary functions.
         Switch ($type)
         {
             "VM-Linux" {
@@ -246,6 +248,7 @@ foreach ($backupJob in $configFile.Keys) {
             }
         }   
     }
+    # Generate the index (home) page of the web dashboard
     Write-IndexPage
 }
 Write-Output "`n"
