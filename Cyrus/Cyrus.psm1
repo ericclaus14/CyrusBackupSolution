@@ -7,7 +7,7 @@
 
 .NOTES
     Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-    Last Modified: 3/13/2019
+    Last Modified: 4/3/2019
 
 .LINK
     https://github.com/ericclaus14/CyrusBackupSolution
@@ -17,6 +17,7 @@
 Import-Module Posh-SSH
 Import-Module 7Zip4PowerShell
 
+# Configurable variables used by functions below. Change these to the correct values when implemented in a new environment
 $CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
 $WebDashboardRootDirectory = "$CBSRootDirectory\Dashboard"
 $HelpDeskEmail = "ericclaus@collegedaleacademy.com"
