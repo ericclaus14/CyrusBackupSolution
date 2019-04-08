@@ -91,7 +91,7 @@ All backup jobs are defined in Cyrus-Config.ini. Documentation is included insid
 * BkDir=C:\Backup\Directories\CyrusRepo       
    * Where the backups are to be stored.
 * SourcePath=C:\Repos\CyrusBackupSolution      
-   *The path to the directory being backed up. Note that different backup job types may have different names for this parameter. See the comments at the top of the config file for the correct syntax.
+   * The path to the directory being backed up. Note that different backup job types may have different names for this parameter. See the comments at the top of the config file for the correct syntax.
 * Owner=ericclaus@collegedaleacademy.com      
    * The product owner's email address. This is an address that should receive alerts if the backup job fails.
 * EncryptionKeyFile=C:\CyrusBackupSolution\SecurePasswordFiles\dirEncryption.pass     # The path to the secure password file containing the encryption key to be used when encrypting the backup. See the "Generating secure password files with New-SecurePassFile" section of this document for details on how to generate this file.
@@ -110,7 +110,7 @@ All backup jobs are defined in Cyrus-Config.ini. Documentation is included insid
 * BkDir=C:\Backup\SSH\Switches\6              
    * Where the backups are to be stored.
 * NetPath=172.17.0.6                          
-   *The IP address of the device being backed up.
+   * The IP address of the device being backed up.
 * Owner=ericclaus@collegedaleacademy.com      
    * The product owner's email address. This is an address that should receive alerts if the backup job fails.
 * CommandList=write mem,copy startup-config tftp 172.17.5.100 6-config.cfg
