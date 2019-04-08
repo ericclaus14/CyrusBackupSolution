@@ -132,9 +132,7 @@ It returns the path to the secure password file as a string. This is used to sec
 This function must be run on the same computer and by the same user account that will run the scheduled task used to run Cyrus! For example, if the scheduled task that runs Cyrus.ps1 is configured to run under an account named "Cyrus", you must use this same account when running New-SecurePassFile and creating the secure password files.
 
 #### Example one
-New-SecurePassFile.ps1
-Prompts for a password, then converts it to a secure string and saves the file to Cyrus's root directory.
+New-SecurePassFile.ps1 # Prompts for a password, then converts it to a secure string and saves the file to Cyrus's root directory.
 
 #### Example two
-New-SecurePassFile "C:\myPwds\"
-Prompts for a password, then converts it to a secure string and saves the file to the "C:\myPwds\" directory.
+New-SecurePassFile -PwdFileDir "C:\myPwds\" # Prompts for a password, then converts it to a secure string and saves the file to the "C:\myPwds\" directory.
