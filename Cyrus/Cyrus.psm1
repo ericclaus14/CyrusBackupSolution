@@ -907,7 +907,7 @@ function New-SecurePassFile {
             [string]$PwdFileDir = "C:\Scripts"
     )
     
-    $PwdFile = "$PwdFileDir\$(Get-Random)"
+    $PwdFile = "$PwdFileDir\$(Get-Random).pass"
        
     $Password = (Read-Host -Prompt "Enter the password to add to the file" -AsSecureString)
     
