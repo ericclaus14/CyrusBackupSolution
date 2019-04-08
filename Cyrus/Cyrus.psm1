@@ -871,7 +871,8 @@ function New-SecurePassFile {
     It prompts for the password to be entered and then converts it to a secure string and saves
     it to a file. It returns the path to the secure password file as a string. The file name is
     randomly generated and the directory it is located in can be either left to the default path
-    defined in the script, or a directory specified with the -PwdFileDir parameter.
+    defined in the script (by default this is the path to Cyrus's root directory as defined at the 
+    top of the Cyrus.psm1 module file), or a directory specified with the -PwdFileDir parameter.
     
     This function must be run on the same computer and by the same user account that will run any 
     scripts that reference the secure password file.
@@ -887,7 +888,7 @@ function New-SecurePassFile {
     
     .EXAMPLE
     New-SecurePassFile.ps1
-    Prompts for a password, then converts it to a secure string and saves the file to the default directory.
+    Prompts for a password, then converts it to a secure string and saves the file to Cyrus's root directory.
     
     .EXAMPLE
     New-SecurePassFile "C:\myPwds\"
@@ -904,7 +905,7 @@ function New-SecurePassFile {
 
     Param(
         [ValidateScript({Test-Path $_})]
-            [string]$PwdFileDir = "C:\Scripts"
+            [string]$PwdFileDir = "$CBSRootDirectory\SecurePassFiles"
     )
     
     $PwdFile = "$PwdFileDir\$(Get-Random).pass"
