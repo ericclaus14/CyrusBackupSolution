@@ -33,22 +33,22 @@ First, you'll need to add Cyrus's root directory (e.g. 'C:\CyrusBackupSolution')
 Next, create a new scheduled task in the Windows Task Scheduler to run Cyrus's core script, Cyrus.ps1, every 30 minutes.
 1. From the Task Scheduler, click "Create Task" in the right-hand menu.
 2. From the 'General' tab of the 'Create Task' window:
-  1. Set the name of the task to something relevant (e.g. "Cyrus Backup Solution"),
-  2. Check the box to "Run with highest privileges",
-  3. Check the radio button to select "Run whether user is logged on or not",
-  4. Change the user whom the task is run under to the correct account (idealy a domain admin account used only by Cyrus),
-  5. Change the "Configure for" option to "Windows Server 2016".
+   1. Set the name of the task to something relevant (e.g. "Cyrus Backup Solution"),
+   2. Check the box to "Run with highest privileges",
+   3. Check the radio button to select "Run whether user is logged on or not",
+   4. Change the user whom the task is run under to the correct account (idealy a domain admin account used only by Cyrus),
+   5. Change the "Configure for" option to "Windows Server 2016".
 3. Switch to the 'Triggers' tab of the 'Create Task' window and create a new trigger:
-  1. Make sure that the "Begin the task" option is set to "On a schedule",
-  2. Check the radio button to select "Daily",
-  3. Change the start time to 12:00:00 AM,
-  4. Make sure it is set to recur every 1 days,
-  5. Check the box to "Repeat task every" and set its value to 30 minutes,
-  6. Make sure the checkbox to enable the trigger is checked and click "OK".
+   1. Make sure that the "Begin the task" option is set to "On a schedule",
+   2. Check the radio button to select "Daily",
+   3. Change the start time to 12:00:00 AM,
+   4. Make sure it is set to recur every 1 days,
+   5. Check the box to "Repeat task every" and set its value to 30 minutes,
+   6. Make sure the checkbox to enable the trigger is checked and click "OK".
 4. Switch to the 'Actions' tab of the 'Create Task' window and create a new action:
-  1. Make sure the "Action" is set to "Start a program",
-  2. Set the "Program/script" field to "powershell" (without the quotes),
-  3. Set the "Add arguments" field to the path of Cyrus's core script, Cyrus.ps1 (this should be '<Cyrus root directory>\Cyrus.ps1', e.g. 'C:\CyrusBackupSolution\Cyrus.ps1').
-  4. Click "OK" to return to the 'Create Task' window.
+   1. Make sure the "Action" is set to "Start a program",
+   2. Set the "Program/script" field to "powershell" (without the quotes),
+   3. Set the "Add arguments" field to the path of Cyrus's core script, Cyrus.ps1 (this should be '<Cyrus root directory>\Cyrus.ps1', e.g. 'C:\CyrusBackupSolution\Cyrus.ps1').
+   4. Click "OK" to return to the 'Create Task' window.
 5. To save the task, click "OK" in the 'Create Task' window and enter the password for the domain account the task is set to run for (again, ideally this should be a domain admin account that only Cyrus uses).
 
