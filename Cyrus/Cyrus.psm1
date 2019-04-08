@@ -19,9 +19,13 @@ Import-Module Posh-SSH
 Import-Module 7Zip4PowerShell
 
 # Configurable variables used by functions below. Change these to the correct values when implemented in a new environment
+
+##### CHANGE BELOW WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 $CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
-$WebDashboardRootDirectory = "$CBSRootDirectory\Dashboard"
 $HelpDeskEmail = "ericclaus@collegedaleacademy.com"
+##### CHANGE ABOVE WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
+
+$WebDashboardRootDirectory = "$CBSRootDirectory\Dashboard"
 
 # Thanks to Trevor Sullivan for this regular expression!
 # https://stackoverflow.com/a/48253796

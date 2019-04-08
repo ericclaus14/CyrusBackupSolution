@@ -52,3 +52,20 @@ Next, create a new scheduled task in the Windows Task Scheduler to run Cyrus's c
    4. Click "OK" to return to the 'Create Task' window.
 5. To save the task, click "OK" in the 'Create Task' window and enter the password for the domain account the task is set to run for (again, ideally this should be a domain admin account that only Cyrus uses).
 
+## Initial Configuration
+If you have been following these instructions so far, Cyrus should now be installed. Congratulations! 
+
+Now, on to the initial configuration of Cyrus!
+
+Almost all of the configuration is done in the config file, Cyrus-Config.ini. This should be located Cyrus's root directory.
+
+But, when you are initially installing Cyrus there are a few changes that must be made to the core script, Cyrus.ps1, and the PowerShell module, Cyrus.psm1. The core script should be located in Cyrus's root directory and the module in the 'Cyrus' subfolder inside of Cyrus's root directory.
+
+Inside of the core script, Cyrus.ps1, change the value being assigned to the variable named "$CBSRootDirectory" to match Cyrus's root directory (e.g. 'C:\CyrusBackupSolution').
+
+Next, inside of the PowerShell module, Cyrus.psm1, change the following variables:
+* $CBSRootDirectory 
+   * Set the value being assigned to this variable to the path of Cyrus's root directory (the same as in Cyrus.ps1)
+* $HelpDeskEmail
+   * Set the value being assigned to this variable whatever email address you want ALL backup alerts to be sent to (secondary email addresses for specific backup jobs (e.g. the product owner's email address) are set individually for each backup job).
+

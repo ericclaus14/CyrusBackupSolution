@@ -18,11 +18,13 @@
 [CmdletBinding()]
 Param()
 
+##### CHANGE BELOW WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 # Where Cyrus Backup Solution is installed
-$CBSRootDir = "C:\Repos\CyrusBackupSolution"
+$CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
+##### CHANGE ABOVE WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 
 $date = Get-Date -Format MM-dd-yyyy-HHmm
-Start-Transcript -Path "$CBSRootDir\Transcripts\$date.transcript"
+Start-Transcript -Path "$CBSRootDirectory\Transcripts\$date.transcript"
 
 # Get date and time information which will be compared to each backup job's frequency to determine if the job should be run or not
 # Frequency syntax in config file: [Hourly,top|bottom], [Daily,<hour>,top|bottom], [Weekly,<day of week>,<hour>,top|bottom]
@@ -32,7 +34,7 @@ $hour = $dateTime.Hour
 $minute = $dateTime.Minute
 
 # Read in config file to variable. This will output a hash table of hash tables
-$configFile = Get-IniContent -FilePath "$CBSRootDir\Cyrus-Config.ini"
+$configFile = Get-IniContent -FilePath "$CBSRootDirectory\Cyrus-Config.ini"
 
 # Loop through each backup job (sub-hash table) defined inside of the config file
 foreach ($backupJob in $configFile.Keys) {
