@@ -78,48 +78,48 @@ Next, inside of the PowerShell module, Cyrus.psm1, change the following variable
 All backup jobs are defined in Cyrus-Config.ini. Documentation is included inside of the config file. Below are a couple example backup job definitions with explanations. Comments are included as sub-bullets.
 
 ### Example one
-* [CyrusRepoFull]                             
+* **[CyrusRepoFull]**                             
    * This must be a unique value!
-* Name=CyrusRepo                              
+* **Name=CyrusRepo**                              
    * This is the name of the item being backed up. It will be displayed on the web dashboard. In the case of a directory that has both incremental and full backup jobs defined for it, this name must be the same for both backup jobs.
-* Type=DirectoryFull                          
+* **Type=DirectoryFull**                          
    * The type of backup job it is. See the comments at the top of the config file for a list. This determines how the item will be backed up. In this example, a full backup is being completed on a directory.
-* Frequency=Weekly,Sunday,20,top              
-   * How often this backup job is to be run. See the comments at the top of the config file for the syntax for this. In this example, the backup job is to run weekly, every Sunday, at 8:00 pm. 
-* Retention=1                                 
+* **Frequency=Weekly,Sunday,20,top**              
+   * How often this backup job is to be run. See the comments at the top of the config file for the syntax for this. In this example, the backup job is to run weekly, every Sunday, at 8:00 pm (at the top of the hour).
+* **Retention=1**                                 
    * How long the backup file are to be kept for in days. After this amount of time, backup files will be deleted.
-* BkDir=C:\Backup\Directories\CyrusRepo       
+* **BkDir=C:\Backup\Directories\CyrusRepo**       
    * Where the backups are to be stored.
-* SourcePath=C:\Repos\CyrusBackupSolution      
+* **SourcePath=C:\Repos\CyrusBackupSolution**      
    * The path to the directory being backed up. Note that different backup job types may have different names for this parameter. See the comments at the top of the config file for the correct syntax.
-* Owner=ericclaus@collegedaleacademy.com      
+* **Owner=ericclaus@collegedaleacademy.com**      
    * The product owner's email address. This is an address that should receive alerts if the backup job fails.
-* EncryptionKeyFile=C:\CyrusBackupSolution\SecurePasswordFiles\dirEncryption.pass     # The path to the secure password file containing the encryption key to be used when encrypting the backup. See the "Generating secure password files with New-SecurePassFile" section of this document for details on how to generate this file.
+* **EncryptionKeyFile=C:\CyrusBackupSolution\SecurePasswordFiles\dirEncryption.pass**     # The path to the secure password file containing the encryption key to be used when encrypting the backup. See the "Generating secure password files with New-SecurePassFile" section of this document for details on how to generate this file.
 
 ### Example two
-* [HDSwitch]                                  
+* **[HDSwitch]**                                  
    * This must be a unique value!
-* Name=HDSwitch                               
+* **Name=HDSwitch**                               
    * This is the name of the item being backed up. It will be displayed on the web dashboard.
-* Type=SSH-Incremental-SSHShellStream         
+* **Type=SSH-Incremental-SSHShellStream**         
    * The type of backup job it is. See the comments at the top of the config file for a list. This determines how the item will be backed up. In this example, an incremental backup is being performed on an SSH-enabled appliance that uses an SSH Shell Stream.
-* Frequency=Hourly,bottom                     
-   * How often this backup job is to be run. See the comments at the top of the config file for the syntax for this. In this example, the backup job is to run weekly, every Sunday, at 8:30 pm. 
-* Retention=90                                
+* **Frequency=Hourly,bottom**                     
+   * How often this backup job is to be run. See the comments at the top of the config file for the syntax for this. In this example, the backup job is to run every hour at the bottom of the hour. 
+* **Retention=90**                                
    * How long the backup file are to be kept for in days. After this amount of time, backup files will be deleted.
-* BkDir=C:\Backup\SSH\Switches\6              
+* **BkDir=C:\Backup\SSH\Switches\6**              
    * Where the backups are to be stored.
-* NetPath=172.17.0.6                          
+* **NetPath=172.17.0.6**                          
    * The IP address of the device being backed up.
-* Owner=ericclaus@collegedaleacademy.com      
+* **Owner=ericclaus@collegedaleacademy.com**      
    * The product owner's email address. This is an address that should receive alerts if the backup job fails.
-* CommandList=write mem,copy startup-config tftp 172.17.5.100 6-config.cfg
+* **CommandList=write mem,copy startup-config tftp 172.17.5.100 6-config.cfg**
    * The command, or list of commands, to be run on the target device once an SSH connection is established. If multiple commands are needed, seperate them with commas (','). Cyrus will run each command in order.
-* Username=admin
+* **Username=admin**
    * The username of the account to be used to SSH into the device being backed up.
-* PasswordFile=C:\Repos\CyrusBackupSolution\Other\SecurePasswordFiles\22134658    
+* **PasswordFile=C:\Repos\CyrusBackupSolution\Other\SecurePasswordFiles\22134658.pass**   
    * The path to the secure password file containing the password of the account to be used to SSH into the device being backed up (should correspond with the username specified above!). See the "Generating secure password files with New-SecurePassFile" section of this document for details on how to generate this file.
-* BackupFileExtension=cfg 
+* **BackupFileExtension=cfg** 
    * What extension the backup file will have. This is only required for some backup types. See the comments at the top of the config file for details as to which backup types need this parameter.
 
 ### Generating secure password files with New-SecurePassFile
