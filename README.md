@@ -103,3 +103,18 @@ PasswordFile=C:\Repos\CyrusBackupSolution\Other\SecurePasswordFiles\22134658    
 BackupFileExtension=cfg                     # What extension the backup file will have. This is only required for some backup types. See the comments at the top of the config file for details as to which backup types need this parameter.
 
 ### Generating secure password files with New-SecurePassFile
+New-SecurePassFile is a PowerShell function defined in Cyrus's PowerShell module, Cyrus.psm1. It can be run to create a secure password that will be used in backup jobs (as defined in the config file, Cyrus-Config.ini).
+
+When run, it prompts for a password to be entered. This password is encrypted as a secure string and then exported to an encrypted file. The file name is randomly generated and the directory it is located in can be either be left to the default directory, Cyrus's root directory, or set to a directory specified with the -PwdFileDir parameter. 
+
+It returns the path to the secure password file as a string. This is used to securely store passwords such as the encryption keys for virtual machine and directory backups and the passwords for accounts used to SSH into network appliances.
+
+This function must be run on the same computer and by the same user account that will run the scheduled task used to run Cyrus! For example, if the scheduled task that runs Cyrus.ps1 is configured to run under an account named "Cyrus", you must use this same account when running New-SecurePassFile and creating the secure password files.
+
+#### Example one
+New-SecurePassFile.ps1
+Prompts for a password, then converts it to a secure string and saves the file to Cyrus's root directory.
+
+#### Example two
+New-SecurePassFile "C:\myPwds\"
+Prompts for a password, then converts it to a secure string and saves the file to the "C:\myPwds\" directory.
