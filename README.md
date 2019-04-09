@@ -136,3 +136,21 @@ New-SecurePassFile.ps1 # Prompts for a password, then converts it to a secure st
 
 #### Example two
 New-SecurePassFile -PwdFileDir "C:\myPwds\" # Prompts for a password, then converts it to a secure string and saves the file to the "C:\myPwds\" directory.
+
+## Creating a New Backup Type (Backing Up A Different Type of Item)
+So, you want to back up something that is not already covered by Cyrus Backup Solution? Great! Here are the high level steps needed to create a new backup type and incorporate into Cyrus.
+
+1. Write a PowerShell function to perform the backup. Feel free to look over the existing backup functions in Cyrus.psm1 for examples. 
+2. Name your new function "Backup-<item being backed up>" (e.g. "Backup-Spiceworks"). Place this function in the bottom of the PowerShell module file, Cyrus.psm1.
+3. If your new backup function accepts parameters that have different names than any of the parameters used in the existing functions, add these new paramaters to the #### Backup Job Properties #### section in the core script, Cyrus.ps1. Follow the syntax used with the existing parameters defined in the Backup Job Properties section of Cyrus.ps1.
+4. Add the new backup job type to the #### Backup Job Types #### section in the core script, Cyrus.ps1. This section consists of a Switch (case) statement. Follow the syntax of the existing backup job types in the Switch statement in Cyrus.ps1. A skelton of a new backup type Switch statement is included in Cyrus.ps1.
+5. Add the new backup job(s) to the config file, Cyrus-Config.ini. Follow the syntax of the existing backup job definitions in Cyrus-Config.ini. Make sure:
+   1. That the following properties are included in your new backup job definition:
+      1. Name
+      2. Type
+      3. Frequency
+      4. Retention
+      5. BkDir
+      6. Owner
+   2. That the Type property is identical to the cooresponding value in the Switch statement in the Backup Job Type section of Cyrus.ps1.
+6. Test, test, test! 
