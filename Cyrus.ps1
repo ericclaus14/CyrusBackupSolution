@@ -64,6 +64,12 @@ foreach ($backupJob in $configFile.Keys) {
     # Convert command list from string to array so it can be iterated through
     if ($commandList) {$cmdList = $commandList.split(",")}
 
+    ####################################################################################################
+    ########### Add Additional Properties Here #########################################################
+
+    ####################################################################################################
+    ####################################################################################################
+
     # If the backup job is to be run at the current day and time, this variable will be changed to $true
     $toBeRun = $false
 
@@ -249,6 +255,11 @@ foreach ($backupJob in $configFile.Keys) {
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_DB-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion        
                 }
             }
+            ####################################################################################################
+            ########### Add Additional Backup Types Here #######################################################
+
+            ####################################################################################################
+            ####################################################################################################
         }   
     }
     # Generate the index (home) page of the web dashboard
