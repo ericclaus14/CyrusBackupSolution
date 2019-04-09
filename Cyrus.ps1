@@ -42,6 +42,7 @@ foreach ($backupJob in $configFile.Keys) {
     # Skip this sub-has table
     if ($backupJob -eq "No-Section") {Continue}
 
+    #### Backup Job Properties ####
     # Properties common to all backup types
     $name = $configFile[$backupJob].Name
     $type = $configFile[$backupJob].Type
@@ -69,6 +70,8 @@ foreach ($backupJob in $configFile.Keys) {
 
     ####################################################################################################
     ####################################################################################################
+
+    #### End Backup Job Properties Section ####
 
     # If the backup job is to be run at the current day and time, this variable will be changed to $true
     $toBeRun = $false
@@ -113,6 +116,7 @@ foreach ($backupJob in $configFile.Keys) {
             $host.ui.RawUI.ForegroundColor = $defaultTextColor
         }
 
+        #### Backup Job Types ####
         # Define backup types and call their corresponding backup functions
         # Then, clean up their backups that are older than their retention period 
         # Based on the Type property specified in the config file
@@ -257,10 +261,24 @@ foreach ($backupJob in $configFile.Keys) {
             }
             ####################################################################################################
             ########### Add Additional Backup Types Here #######################################################
+            "<INSERT NEW TYPE HERE>" {
+                if ($VerbosePreference -eq "Continue") {
+                    # CALL BACKUP FUNCTION HERE
 
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Custom-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
+                }
+                else {
+                    # CALL BACKUP FUNCTION HERE
+                    
+                    Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion   
+                    Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_Custom-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
+                }
+            }
             ####################################################################################################
             ####################################################################################################
         }   
+        #### End Backup Job Types Section ####
     }
     # Generate the index (home) page of the web dashboard
     Write-IndexPage
