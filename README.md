@@ -74,7 +74,7 @@ Next, inside of the PowerShell module, Cyrus.psm1, change the following variable
 * $HelpDeskEmail
    * Set the value being assigned to this variable whatever email address you want ALL backup alerts to be sent to (secondary email addresses for specific backup jobs (e.g. the product owner's email address) are set individually for each backup job).
 
-## Defining a new backup job (backing up a new item)
+## Defining a New Backup Bob (backing up a new item)
 All backup jobs are defined in Cyrus-Config.ini. Documentation is included inside of the config file. Below are a couple example backup job definitions with explanations. Comments are included as sub-bullets.
 
 ### Example one
