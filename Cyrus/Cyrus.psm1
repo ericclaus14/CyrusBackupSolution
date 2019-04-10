@@ -128,6 +128,9 @@ function Backup-VM {
     $ErrorActionPreference = "Stop"
     ########## End Error Handling ##########
     
+    if (!(Test-Path $backupDirectory)) {mkdir $backupDirectory}
+    if (!(Test-Path "$backupDirectory\Logs")) {mkdir "$backupDirectory\Logs"}
+
     # Convert the secure password file to a Veeam encryption key
     $encryptionKey = Get-Content $encryptionKeyFile | ConvertTo-SecureString
     $encryptionKey = Add-VBREncryptionKey -Password $encryptionKey
@@ -195,7 +198,6 @@ function Backup-Directory{
         
         # Folder the backup file will reside in
         [Parameter(Mandatory=$true)]
-            [ValidateScript({Test-Path $_})] 
             [string]$BackupDestinationDir,
 
         # What to name the backup file (will have -<FULL|INCREMENTAL>-<date>.7z added to the end of it)
@@ -236,6 +238,9 @@ function Backup-Directory{
     Write-Verbose "Encryption password retrieved. Starting backup."
 
     Write-Output "Backing up $BackupSource..."
+
+    if (!(Test-Path $BackupDestinationDir)) {mkdir $BackupDestinationDir}
+    if (!(Test-Path "$BackupDestinationDir\Logs")) {mkdir "$BackupDestinationDir\Logs"}
 
     if ($Type -eq "Incremental") {
         
@@ -335,12 +340,10 @@ function Backup-SshAppliance{
 
         # Directory to store the backups
         [Parameter(Mandatory=$true)]
-            [ValidateScript({Test-Path $_})]
             [string]$BackupDirectory,
 
         # Directory to store the logs
-        [ValidateScript({Test-Path $_})]
-            [string]$LogDirectory = "$BackupDirectory\Logs",
+        [string]$LogDirectory = "$BackupDirectory\Logs",
 
         # Username to SSH with
         [Parameter(Mandatory=$true)]
@@ -380,6 +383,9 @@ function Backup-SshAppliance{
     # Treat all errors as terminating, useful for the trap statement above
     $ErrorActionPreference = "Stop"
     ########## End Error Handling ##########
+
+    if (!(Test-Path $backupDirectory)) {mkdir $backupDirectory}
+    if (!(Test-Path $LogDirectory)) {mkdir $LogDirectory}
 
     $date = (Get-Date).ToString("MMddyyHHmm")
 
@@ -540,12 +546,10 @@ function Backup-GroupPolicy{
     Param(
         # Where to store the backups
         [Parameter(Mandatory=$true)]
-            [ValidateScript({Test-Path $_})]
             [string]$BackupDirectory,
     
         # Where is the log file to be stored?
-        [ValidateScript({Test-Path $_})] 
-            [string]$LogDirectory = "$BackupDirectory\Logs",
+        [string]$LogDirectory = "$BackupDirectory\Logs",
     
         [validatescript({$_ -match $ValidEmailAddress})]
             [string]$ProductOwnerEmail
@@ -559,6 +563,9 @@ function Backup-GroupPolicy{
     ########## End Error Handling ##########
 
     Write-Output "Beginning Group Policy backup..."
+
+    if (!(Test-Path $backupDirectory)) {mkdir $backupDirectory}
+    if (!(Test-Path $LogDirectory)) {mkdir $LogDirectory}
 
     $date = Get-Date -Format MM-dd-yyyy-HHmm
 
@@ -656,6 +663,9 @@ function Backup-MSSQL {
     # Treat all errors as terminating, useful for the trap statement above
     $ErrorActionPreference = "Stop"
     ########## End Error Handling ##########
+
+    if (!(Test-Path $backupDirectory)) {mkdir $backupDirectory}
+    if (!(Test-Path "$backupDirectory\Logs")) {mkdir "$backupDirectory\Logs"}
 
     $date = (Get-Date).ToString("MMddyyHHmm")
 
