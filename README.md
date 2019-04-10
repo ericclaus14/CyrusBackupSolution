@@ -154,3 +154,8 @@ So, you want to back up something that is not already covered by Cyrus Backup So
       6. Owner
    2. That the Type property is identical to the cooresponding value in the Switch statement in the Backup Job Type section of Cyrus.ps1.
 6. Test, test, test! 
+
+## Using the Web Dashboard
+The web dashboard for Cyrus Backup Solution should be accessible at http://<ip address of server>:<port defined for the site in IIS (typically 80)>
+
+The dashboard consists of a home page with links to pages for each item being backed up with Cyrus. On these individual pages are tables containing a list of each backup for that item.
