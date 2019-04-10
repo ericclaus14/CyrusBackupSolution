@@ -1,0 +1,82 @@
+=========================================== Introduction ===========================================
+Thank you for testing Cyrus Backup Solution (Cyrus)!
+
+Below you will find instructions for how to test Cyrus. The testing evaluation survey will be based off these instructions. 
+Feel free to do more with Cyrus than is listed here, however. The more testing you do, and the more feedback you provide, the better Cyrus can become!
+
+As you go through each of the tasks below, please let me know any qustions or concerns you have. 
+Please let me know if anything is unclear or incorrect in Cyrus's documentation or in the instructions.
+
+The goal of this testing is to find ways to improve Cyrus and it's documentation.
+
+=========================================== Task One ===========================================
+First things first, please start by installing Cyrus Backup Solution. The instructions for this are included in the README for the project.
+Please don't hesitate to reach out to me if you run into any questions or problems, or if the documentation is unclear.
+
+=========================================== Task Two ===========================================
+If you're starting on this task, I'm assuming that you have gotten Cyrus installed. Great!
+Now that Cyrus is installed, your next mission is to configure Cyrus to back up a directory (any directory). This directory should be backed up in two ways.
+Please create daily full backups and hourly incremental backups of the directory. To do this, define two new backup jobs in Cyrus's configuration file, Cyrus-Config.ini.
+Create one backup job definition to back the directory up incrementally every hour, on the bottom of the hour, and one to back it up fully every day. 
+See the "Defining a New Backup Job (backing up a new item)" section of the README file and the comments inside of Cyrus's configuration file, Cyrus-Config.ini for instructions.
+For now, set the retention period for both backup jobs to 14 days.
+
+Please check these backups regularly (at least daily) to see if they are working or not.
+
+Again, let me know if you run into any questions or problems, or if the documentation could use improvement!
+
+=========================================== Task Three ===========================================
+Your next mission, should you choose to accept it, is to use Cyrus to back up an SSH-enabled network appliance (such as a switch or a firewall).
+Define a new backup job in Cyrus-Config.ini that backs up your chosen SSH-enabled network appliance hourly on the bottom of the hour.
+Again, see the "Defining a New Backup Job (backing up a new item)" section of the README file and the comments inside of Cyrus's configuration file, Cyrus-Config.ini for instructions.
+One thing worth mentioning is that there are four different backup job types relating to SSH-enabled appliances you can select from in Cyrus-Config.ini.
+Which one you choose will be defined by two things: 
+-First, whether or not an SSH Shell Stream is needed (e.g. HP switches require this)
+-And second, whether you want to do a full backup or an incremental backup. Note that incremental backups are not possible if the SSH-enabled appliance's config is encrypted when backed up!
+For now, set the retention period for the backup job to 14 days.
+
+Please check these backups regularly (at least daily) to see if they are working or not.
+
+Again, let me know if you run into any questions or problems, or if the documentation could use improvement!
+
+=========================================== Task Four ===========================================
+You may be longing for an easier way to check the status of each backup job. If so, there is good news! 
+There is a web dashboard that can be used to monitor the backup! 
+Your next mission is to open the web dashboard at least daily and check to see if the backup jobs are working correctly. 
+See the "Using the Web Dashboard" section of the README for some details about the dashboard.
+
+Yet again, let me know if you run into any questions or problems, or if the documentation could use improvement!
+
+Once you have completed these first four tasks, take a breather (but please continue to monitor the backups at least daily) and let the newly defined backups fun for a couple days. 
+Your next task will begin on day number three of this testing period.
+
+=========================================== Task Five ===========================================
+Welcome to day number three of testing! 
+Your next mission is to change the backup frequencies for the following backup jobs created in Tasks Two and Three: 
+-The incremental directory backup job,
+-The SSH-enabled network appliance backup.
+Configure them both to run daily at 11:00 p.m. (the top of the hour). Note that Cyrus-Config.ini uses 24 hour time so 11:00 p.m. would be defined as 23.
+So, for this testing, you should now have three backup jobs defined in Cyrus-Config.ini:
+-An incremental directory backup job running daily at 11:00 p.m.,
+-An SSH backup job running daily at 11:00 p.m.,
+-A full directory backup job running daily at whatever time you choose for it.
+
+Please check these backups regularly (at least daily) to see if they are working or not.
+
+I may be sounding like a broken record at this point, but again, let me know if you run into any questions or problems, or if the documentation could use improvement!
+
+=========================================== Task Six ===========================================
+Now, if Cyrus is working properly, you should have quite a few backups already stored for each backup job. Backups can consume a lot of storage space!
+To help with this, your final mission is to configure the retention period of the SSH backup job. This is done in Cyrus-Config.ini.
+Set this backup job's retention period to 2 days. Yes, this period is incredibly short, but this short of a time span will help make testing quicker!
+
+Please check the backups regularly (at least daily) to see if all backups older than two days are being deleted.
+
+And I'll say it one more time, let me know if you run into any questions or problems, or if the documentation could use improvement!
+
+=========================================== Conclusion ===========================================
+Thank you again for helping to make Cyrus Backup Solution better by performing this testing. Your feedback is extremely important!
+At the end of the testing period I will be sending you a survey to help evaluate how well Cyrus performed for you.
+
+Thank you!
+Eric Claus (the developer)

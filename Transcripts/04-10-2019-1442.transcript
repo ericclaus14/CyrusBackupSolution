@@ -1,0 +1,49 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20190410144212
+Username: AD\ericclausadmin
+RunAs User: AD\ericclausadmin
+Machine: CBS1 (Microsoft Windows NT 10.0.14393.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand JgAgACcAQwA6AFwAVQBzAGUAcgBzAFwAZQByAGkAYwBjAGwAYQB1AHMAYQBkAG0AaQBuAFwALgB2AHMAYwBvAGQAZQBcAGUAeAB0AGUAbgBzAGkAbwBuAHMAXABtAHMALQB2AHMAYwBvAGQAZQAuAHAAbwB3AGUAcgBzAGgAZQBsAGwALQAxAC4AMQAyAC4AMABcAG0AbwBkAHUAbABlAHMAXABQAG8AdwBlAHIAUwBoAGUAbABsAEUAZABpAHQAbwByAFMAZQByAHYAaQBjAGUAcwBcAFMAdABhAHIAdAAtAEUAZABpAHQAbwByAFMAZQByAHYAaQBjAGUAcwAuAHAAcwAxACcAIAAtAEgAbwBzAHQATgBhAG0AZQAgACcAVgBpAHMAdQBhAGwAIABTAHQAdQBkAGkAbwAgAEMAbwBkAGUAIABIAG8AcwB0ACcAIAAtAEgAbwBzAHQAUAByAG8AZgBpAGwAZQBJAGQAIAAnAE0AaQBjAHIAbwBzAG8AZgB0AC4AVgBTAEMAbwBkAGUAJwAgAC0ASABvAHMAdABWAGUAcgBzAGkAbwBuACAAJwAxAC4AMQAyAC4AMAAnACAALQBBAGQAZABpAHQAaQBvAG4AYQBsAE0AbwBkAHUAbABlAHMAIABAACgAJwBQAG8AdwBlAHIAUwBoAGUAbABsAEUAZABpAHQAbwByAFMAZQByAHYAaQBjAGUAcwAuAFYAUwBDAG8AZABlACcAKQAgAC0AQgB1AG4AZABsAGUAZABNAG8AZAB1AGwAZQBzAFAAYQB0AGgAIAAnAEMAOgBcAFUAcwBlAHIAcwBcAGUAcgBpAGMAYwBsAGEAdQBzAGEAZABtAGkAbgBcAC4AdgBzAGMAbwBkAGUAXABlAHgAdABlAG4AcwBpAG8AbgBzAFwAbQBzAC0AdgBzAGMAbwBkAGUALgBwAG8AdwBlAHIAcwBoAGUAbABsAC0AMQAuADEAMgAuADAAXABtAG8AZAB1AGwAZQBzACcAIAAtAEUAbgBhAGIAbABlAEMAbwBuAHMAbwBsAGUAUgBlAHAAbAAgAC0ATABvAGcATABlAHYAZQBsACAAJwBOAG8AcgBtAGEAbAAnACAALQBMAG8AZwBQAGEAdABoACAAJwBDADoAXABVAHMAZQByAHMAXABlAHIAaQBjAGMAbABhAHUAcwBhAGQAbQBpAG4AXAAuAHYAcwBjAG8AZABlAFwAZQB4AHQAZQBuAHMAaQBvAG4AcwBcAG0AcwAtAHYAcwBjAG8AZABlAC4AcABvAHcAZQByAHMAaABlAGwAbAAtADEALgAxADIALgAwAFwAbABvAGcAcwBcADEANQA1ADQAOQAyADEANwAyADcALQBhAGIAZgBiADQAMAAzADAALQBkAGMAMwAwAC0ANAA2ADgANQAtADkAOQBjADIALQBkADQAZgBkADQAYgAwADUANQA3AGIAMAAxADUANQA0ADkAMgAxADcAMQAxADgANgAxAFwARQBkAGkAdABvAHIAUwBlAHIAdgBpAGMAZQBzAC4AbABvAGcAJwAgAC0AUwBlAHMAcwBpAG8AbgBEAGUAdABhAGkAbABzAFAAYQB0AGgAIAAnAEMAOgBcAFUAcwBlAHIAcwBcAGUAcgBpAGMAYwBsAGEAdQBzAGEAZABtAGkAbgBcAC4AdgBzAGMAbwBkAGUAXABlAHgAdABlAG4AcwBpAG8AbgBzAFwAbQBzAC0AdgBzAGMAbwBkAGUALgBwAG8AdwBlAHIAcwBoAGUAbABsAC0AMQAuADEAMgAuADAAXABzAGUAcwBzAGkAbwBuAHMAXABQAFMARQBTAC0AVgBTAEMAbwBkAGUALQAzADUAOAA4AC0ANwA0ADIAMAAwADQAJwAgAC0ARgBlAGEAdAB1AHIAZQBGAGwAYQBnAHMAIABAACgAKQA=
+Process ID: 7436
+PSVersion: 5.1.14393.2248
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.14393.2248
+BuildVersion: 10.0.14393.2248
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Repos\CyrusBackupSolution\Transcripts\04-10-2019-1442.transcript
+
+--------------------------------
+
+Backing up CyrusRepo, DirectoryIncremental.
+Backing up C:\Repos\CyrusBackupSolution...
+
+
+    Directory: C:\Backup\Directories\CyrusRepo\test
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        4/10/2019   2:42 PM                testing
+
+
+    Directory: C:\Backup\Directories\CyrusRepo\test\testing
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        4/10/2019   2:42 PM                Logs
+Incremental backup selected.
+Backing up files modifed since:
+Incremental backup complete.
+Directory backup of C:\Repos\CyrusBackupSolution complete.
+Performing cleanup of the CyrusRepo backups.
+
+**********************
+Windows PowerShell transcript end
+End time: 20190410144216
+**********************
