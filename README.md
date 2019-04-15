@@ -16,6 +16,7 @@ CBS needs the following prerequisites to fully work.
 * A Windows Firewall rule allowing UDP port 69 inbound (this rule can be disabled). This rule MUST be named "TFTP" (without the quotes).
 * Microsoft IIS. Create new site in IIS pointing to the Dashboard folder inside of Cyrus's root directory (C:\CyrusBackupSolution\Dashboard).
 * The Posh-SSH PowerShell module. Install this by running 'Install-Module Posh-SSH' from an elevated PowerShell session.
+* The 7Zip4PowerShell module. Install this by running 'Install-Module 7Zip4PowerShell' from an elevated PowerShell session.
 * Storage media to hold the backups (at least two external hard drives are recommended).
 * A domain account with permissions for the following (it is recommended to have a domain account dedicated to Cyrus that is only used by Cyrus):
    * Read permissions on all Group Policy Objects (if backing up Group Policy Objects)
@@ -68,7 +69,7 @@ Almost all of the configuration is done in the config file, Cyrus-Config.ini. Th
 
 But, when you are initially installing Cyrus there are a few changes that must be made to the core script, Cyrus.ps1, and the PowerShell module, Cyrus.psm1. The core script should be located in Cyrus's root directory and the module in the 'Cyrus' subfolder inside of Cyrus's root directory.
 
-Inside of the core script, Cyrus.ps1, change the value being assigned to the variable named "$CBSRootDirectory" to match Cyrus's root directory ('C:\CyrusBackupSolution').
+Inside of the core script, Cyrus.ps1, change the value being assigned to the variable named "$CBSRootDirectory" to match Cyrus's root directory ('C:\CyrusBackupSolution'). NOTE: I recommend using either PowerShell ISE or Visual Studio Code to edit the PowerShell files included with Cyrus.
 
 Next, inside of the PowerShell module, Cyrus.psm1, change the following variables:
 * $CBSRootDirectory 
