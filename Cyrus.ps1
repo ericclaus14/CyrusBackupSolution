@@ -20,7 +20,7 @@ Param()
 
 ##### CHANGE BELOW WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 # Where Cyrus Backup Solution is installed
-$CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
+$CBSRootDirectory = "C:\CyrusBackupSolution"
 ##### CHANGE ABOVE WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 
 $date = Get-Date -Format MM-dd-yyyy-HHmm

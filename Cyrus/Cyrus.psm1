@@ -21,7 +21,7 @@ Import-Module 7Zip4PowerShell
 # Configurable variables used by functions below. Change these to the correct values when implemented in a new environment
 
 ##### CHANGE BELOW WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
-$CBSRootDirectory = "C:\Repos\CyrusBackupSolution"
+$CBSRootDirectory = "C:\CyrusBackupSolution"
 $HelpDeskEmail = "ericclaus@collegedaleacademy.com"
 ##### CHANGE ABOVE WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 
