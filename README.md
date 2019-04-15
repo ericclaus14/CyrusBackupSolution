@@ -58,7 +58,7 @@ Next, create a new scheduled task in the Windows Task Scheduler to run Cyrus's c
    4. Click "OK" to return to the 'Create Task' window.
 5. To save the task, click "OK" in the 'Create Task' window and enter the password for the domain account the task is set to run for (again, ideally this should be a domain admin account that only Cyrus uses).
 
-## Initial Configuration
+### Initial Configuration
 If you have been following these instructions so far, Cyrus should now be installed. Congratulations! 
 
 Now, on to the initial configuration of Cyrus!
