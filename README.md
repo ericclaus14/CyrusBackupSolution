@@ -71,7 +71,7 @@ Inside of the core script, Cyrus.ps1, change the value being assigned to the var
 
 Next, inside of the PowerShell module, Cyrus.psm1, change the following variables:
 * $CBSRootDirectory 
-   * Set the value being assigned to this variable to the path of Cyrus's root directory (the same as in Cyrus.ps1)
+   * Set the value being assigned to this variable to the path of Cyrus's root directory (the same as in Cyrus.ps1). This should be 'C:\CyrusBackupSolution'.
 * $HelpDeskEmail
    * Set the value being assigned to this variable whatever email address you want ALL backup alerts to be sent to (secondary email addresses for specific backup jobs (e.g. the product owner's email address) are set individually for each backup job).
 
