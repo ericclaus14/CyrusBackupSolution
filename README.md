@@ -12,7 +12,7 @@ Below are the minimum recommended hardware specs (but, the higher the specs, the
 CBS needs the following prerequisites to fully work.
 
 * Veeam Backup & Replication Community Edition ( https://www.veeam.com/virtual-machine-backup-solution-free.html). You can use a paid version, but it is not necessary as all CBS needs is VeeamZIP, which is included in the free version. Once installed, add any hypervisors to it that you will be backing up virtual machines (VMs) from.
-* SolarWinds TFTP Server (https://www.solarwinds.com/free-tools/free-tftp-server). Once installed, create a Windows Firewall rule allowing UDP port 69 inbound (this rule can be disabled).
+* SolarWinds TFTP Server (https://www.solarwinds.com/free-tools/free-tftp-server). Once installed, create a Windows Firewall rule allowing UDP port 69 inbound (this rule can be disabled). This rule MUST be named "TFTP" (without the quotes).
 * Microsoft IIS. Create new site in IIS pointing to the Dashboard folder inside of Cyrus's root directory.
 * Storage media to hold the backups (at least two external hard drives are recommended).
 * A domain account with permissions for the following (it is recommended to have a domain account dedicated to Cyrus that is only used by Cyrus):
