@@ -14,7 +14,7 @@ CBS needs the following prerequisites to fully work.
 * Veeam Backup & Replication Community Edition ( https://www.veeam.com/virtual-machine-backup-solution-free.html). You can use a paid version, but it is not necessary as all CBS needs is VeeamZIP, which is included in the free version. Once installed, add any hypervisors to it that you will be backing up virtual machines (VMs) from.
 * SolarWinds TFTP Server (https://www.solarwinds.com/free-tools/free-tftp-server). This requires .NET Framework 3.5. If this is not already installed, install it from the "Add roles and features" wizard in the Server Manager.
 * A Windows Firewall rule allowing UDP port 69 inbound (this rule can be disabled). This rule MUST be named "TFTP" (without the quotes).
-* Microsoft IIS. Create new site in IIS pointing to the Dashboard folder inside of Cyrus's root directory.
+* Microsoft IIS. Create new site in IIS pointing to the Dashboard folder inside of Cyrus's root directory (C:\CyrusBackupSolution\Dashboard).
 * Storage media to hold the backups (at least two external hard drives are recommended).
 * A domain account with permissions for the following (it is recommended to have a domain account dedicated to Cyrus that is only used by Cyrus):
    * Read permissions on all Group Policy Objects (if backing up Group Policy Objects)
@@ -24,17 +24,17 @@ CBS needs the following prerequisites to fully work.
 
 ## Installing Cyrus Backup Solution
 Cyrus can be found in its GitHub repo here: https://github.com/ericclaus14/CyrusBackupSolution
-* The easiest way is to download the repo as a ZIP file and then extract the contents to Cyrus's new root directory (e.g. 'C:\CyrusBackupSolution').
+* The easiest way is to download the repo as a ZIP file and then extract the contents to Cyrus's new root directory: 'C:\CyrusBackupSolution'.
 * Feel free to clone the repo to your server as well.
 
 Once Cyrus's source files are located on your server, there are a few additional things you'll need to do to complete the installation.
 
-First, you'll need to add Cyrus's root directory (e.g. 'C:\CyrusBackupSolution') to the PSModulePath system environment variable in Windows.
+First, you'll need to add Cyrus's root directory ('C:\CyrusBackupSolution') to the PSModulePath system environment variable in Windows.
 1. Search for 'system environment variables' in the Start Menu and open "Edit the system environment variables".
 2. From the "Advanced" tab of the System Properties window (that has hopefully now opened), click "Environment Variables".
 3. In the "System variables" section near the bottom of the window (NOT the "user variables" section!), scroll down to the "PSModulePath" variable.
 4. Edit the "PSModulePath" variable and add a new entry to the list inside of the variable. Add the path to Cyrus's root directory.
-  * IMPORTANT: Inside of Cyrus's root directory, the PowerShell module file (.psm1) must be inside of a folder of the same name. By defaut the module file is named 'Cyrus.psm1' and is inside of a folder named 'Cyrus' (i.e. '<Cyrus root directory>\Cyrus\Cyrus.psm1').
+  * IMPORTANT: Inside of Cyrus's root directory, the PowerShell module file (.psm1) must be inside of a folder of the same name. By defaut the module file is named 'Cyrus.psm1' and is inside of a folder named 'Cyrus' (i.e. 'C:\CyrusBackupSolution\Cyrus\Cyrus.psm1').
 
 Next, create a new scheduled task in the Windows Task Scheduler to run Cyrus's core script, Cyrus.ps1, every 30 minutes.
 1. From the Task Scheduler, click "Create Task" in the right-hand menu.
@@ -54,7 +54,7 @@ Next, create a new scheduled task in the Windows Task Scheduler to run Cyrus's c
 4. Switch to the 'Actions' tab of the 'Create Task' window and create a new action:
    1. Make sure the "Action" is set to "Start a program",
    2. Set the "Program/script" field to "powershell" (without the quotes),
-   3. Set the "Add arguments" field to the path of Cyrus's core script, Cyrus.ps1 (this should be '<Cyrus root directory>\Cyrus.ps1', e.g. 'C:\CyrusBackupSolution\Cyrus.ps1').
+   3. Set the "Add arguments" field to the path of Cyrus's core script, Cyrus.ps1 (this should be 'C:\CyrusBackupSolution\Cyrus.ps1').
    4. Click "OK" to return to the 'Create Task' window.
 5. To save the task, click "OK" in the 'Create Task' window and enter the password for the domain account the task is set to run for (again, ideally this should be a domain admin account that only Cyrus uses).
 
@@ -67,7 +67,7 @@ Almost all of the configuration is done in the config file, Cyrus-Config.ini. Th
 
 But, when you are initially installing Cyrus there are a few changes that must be made to the core script, Cyrus.ps1, and the PowerShell module, Cyrus.psm1. The core script should be located in Cyrus's root directory and the module in the 'Cyrus' subfolder inside of Cyrus's root directory.
 
-Inside of the core script, Cyrus.ps1, change the value being assigned to the variable named "$CBSRootDirectory" to match Cyrus's root directory (e.g. 'C:\CyrusBackupSolution').
+Inside of the core script, Cyrus.ps1, change the value being assigned to the variable named "$CBSRootDirectory" to match Cyrus's root directory ('C:\CyrusBackupSolution').
 
 Next, inside of the PowerShell module, Cyrus.psm1, change the following variables:
 * $CBSRootDirectory 
