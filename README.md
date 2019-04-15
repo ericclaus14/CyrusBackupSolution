@@ -15,6 +15,7 @@ CBS needs the following prerequisites to fully work.
 * SolarWinds TFTP Server (https://www.solarwinds.com/free-tools/free-tftp-server). This requires .NET Framework 3.5. If this is not already installed, install it from the "Add roles and features" wizard in the Server Manager.
 * A Windows Firewall rule allowing UDP port 69 inbound (this rule can be disabled). This rule MUST be named "TFTP" (without the quotes).
 * Microsoft IIS. Create new site in IIS pointing to the Dashboard folder inside of Cyrus's root directory (C:\CyrusBackupSolution\Dashboard).
+* The Posh-SSH PowerShell module. Install this by running 'Install-Module Posh-SSH' from an elevated PowerShell session.
 * Storage media to hold the backups (at least two external hard drives are recommended).
 * A domain account with permissions for the following (it is recommended to have a domain account dedicated to Cyrus that is only used by Cyrus):
    * Read permissions on all Group Policy Objects (if backing up Group Policy Objects)
