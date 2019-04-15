@@ -22,7 +22,7 @@ Import-Module 7Zip4PowerShell
 
 ##### CHANGE BELOW WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 $CBSRootDirectory = "C:\CyrusBackupSolution"
-$HelpDeskEmail = "ericclaus@collegedaleacademy.com"
+$HelpDeskEmail = "help@domain.com"
 ##### CHANGE ABOVE WHEN INSTALLING CYRUS BACKUP SOLUTION ON A NEW SERVER #####
 
 $WebDashboardRootDirectory = "$CBSRootDirectory\Dashboard"
