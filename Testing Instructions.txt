@@ -36,6 +36,7 @@ One thing worth mentioning is that there are four different backup job types rel
 Which one you choose will be defined by two things: 
 -First, whether or not an SSH Shell Stream is needed (e.g. HP switches require this)
 -And second, whether you want to do a full backup or an incremental backup. Note that incremental backups are not possible if the SSH-enabled appliance's config is encrypted when backed up!
+
 For now, set the retention period for the backup job to 14 days.
 
 Please check these backups regularly (at least daily) to see if they are working or not.
