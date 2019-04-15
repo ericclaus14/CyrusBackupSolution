@@ -18,6 +18,7 @@ If you're starting on this task, I'm assuming that you have gotten Cyrus install
 Now that Cyrus is installed, your next mission is to configure Cyrus to back up a directory (any directory). This directory should be backed up in two ways.
 Please create daily full backups and hourly incremental backups of the directory. To do this, define two new backup jobs in Cyrus's configuration file, Cyrus-Config.ini.
 Create one backup job definition to back the directory up incrementally every hour, on the bottom of the hour, and one to back it up fully every day. 
+
 See the "Defining a New Backup Job (backing up a new item)" section of the README file and the comments inside of Cyrus's configuration file, Cyrus-Config.ini for instructions.
 For now, set the retention period for both backup jobs to 14 days.
 
@@ -28,7 +29,9 @@ Again, let me know if you run into any questions or problems, or if the document
 =========================================== Task Three ===========================================
 Your next mission, should you choose to accept it, is to use Cyrus to back up an SSH-enabled network appliance (such as a switch or a firewall).
 Define a new backup job in Cyrus-Config.ini that backs up your chosen SSH-enabled network appliance hourly on the bottom of the hour.
+
 Again, see the "Defining a New Backup Job (backing up a new item)" section of the README file and the comments inside of Cyrus's configuration file, Cyrus-Config.ini for instructions.
+
 One thing worth mentioning is that there are four different backup job types relating to SSH-enabled appliances you can select from in Cyrus-Config.ini.
 Which one you choose will be defined by two things: 
 -First, whether or not an SSH Shell Stream is needed (e.g. HP switches require this)
