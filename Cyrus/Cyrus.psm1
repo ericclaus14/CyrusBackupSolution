@@ -460,13 +460,14 @@ function Backup-SshAppliance{
         }
         $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
 
-        if ($Incremental) {
+        # Get the name of the most recent copy of the device's backup file
+        $oldFileName = (Get-ChildItem "$deviceBackupDir" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
+
+        # If the -Incremental flag is set and there is a previous backup file
+        if ($Incremental -and $oldFileName) {
             Write-Verbose "Beginning incremental (Compare-Files) portion..."
         
             Write-Output "Type: Incremental." | Out-File -Append $log
-
-            # Get the name of the most recent copy of the device's backup file
-            $oldFileName = (Get-ChildItem "$deviceBackupDir" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
         
             Write-Verbose "Old file: $oldFileName; new file: $newFileName"
 
@@ -493,7 +494,7 @@ function Backup-SshAppliance{
             }
         }
         else {
-            Write-Verbose "Incremental switch not set, moving new backup file to backup directory."
+            Write-Verbose "Incremental switch not set, or no previous backup present, moving new backup file to backup directory."
         
             Write-Output "Type: Full." | Out-File -Append $log
 
@@ -502,10 +503,10 @@ function Backup-SshAppliance{
 
             $newlyMovedFile = (Get-ChildItem "$deviceBackupDir" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
 
-            Write-Verbose "Newly created file name: $newlyMovedFile"
+            Write-Verbose "Newly created file name: $newlyMovedFile."
         }
 
-        Write-Output "Backup of $IP is complete - $date." | Tee-Object -Append $log
+        Write-Output "Backup of $IP as $newFileName complete - $date." | Tee-Object -Append $log
     }
 
     # Stop SolarWinds TFTP Server and disable firewall rule
