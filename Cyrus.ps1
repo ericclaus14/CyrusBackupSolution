@@ -82,7 +82,7 @@ foreach ($backupJob in $configFile.Keys) {
             if ($minute -lt 30) {$toBeRun = $true}
         }
         elseif ($frequency -eq "Hourly,bottom") {
-            if ($minute -gt 30) {$toBeRun = $true}
+            if ($minute -ge 30) {$toBeRun = $true}
         }
         else {Throw "Error: Valid frequency value not set for backup $name."}
     }
@@ -91,7 +91,7 @@ foreach ($backupJob in $configFile.Keys) {
             if ($minute -lt 30) {$toBeRun = $true}
         }
         elseif ($frequency -eq "Daily,$hour,bottom") {
-            if ($minute -gt 30) {$toBeRun = $true}
+            if ($minute -ge 30) {$toBeRun = $true}
         }
     }
     elseif ($frequency -like "Weekly*") {
@@ -99,7 +99,7 @@ foreach ($backupJob in $configFile.Keys) {
             if ($minute -lt 30) {$toBeRun = $true}
         }
         elseif ($frequency -eq "Weekly,$dayOfWeek,$hour,bottom") {
-            if ($minute -gt 30) {$toBeRun = $true}
+            if ($minute -ge 30) {$toBeRun = $true}
         }
     }
     else {Throw "Error: Valid frequency value not set for backup $name."}
