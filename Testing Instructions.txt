@@ -59,6 +59,7 @@ Welcome to day number three of testing!
 Your next mission is to change the backup frequencies for the following backup jobs created in Tasks Two and Three: 
 -The incremental directory backup job,
 -The SSH-enabled network appliance backup.
+
 Configure them both to run daily at 11:00 p.m. (the top of the hour). Note that Cyrus-Config.ini uses 24 hour time so 11:00 p.m. would be defined as 23.
 So, for this testing, you should now have three backup jobs defined in Cyrus-Config.ini:
 -An incremental directory backup job running daily at 11:00 p.m.,

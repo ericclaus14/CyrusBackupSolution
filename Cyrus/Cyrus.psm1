@@ -7,7 +7,7 @@
 
 .NOTES
     Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-    Last Modified: 4/4/2019
+    Last Modified: 4/16/2019
     Licensed under GNU General Public License v3 (GPL-3)
 
 .LINK
@@ -79,7 +79,7 @@ function Backup-VM {
 
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 2/11/2019
+        Last modified: 4/17/2019
         Based on code by Vladimir Eremin (see the link section).
 
     .LINK
@@ -174,7 +174,7 @@ function Backup-Directory{
 
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 2/11/2019
+        Last modified: 4/17/2019
         Thanks to Thomas Freudenberg for his module and his help with getting the incremental backup to work.
 
     .LINK
@@ -319,7 +319,7 @@ function Backup-SshAppliance{
     
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 2/15/2019
+        Last modified: 4/17/2019
 
     .COMPONENT
         Posh-SSH, Compare-Files
@@ -533,7 +533,7 @@ function Backup-GroupPolicy{
 
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last Modified: 2/13/2019
+        Last Modified: 4/17/2019
 
     .LINK
         https://gallery.technet.microsoft.com/scriptcenter/Incremental-GPO-Backup-ccc0856f
@@ -625,7 +625,7 @@ function Backup-MSSQL {
     
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 2/15/2019
+        Last modified: 4/17/2019
 
     .COMPONENT
         Backup-SQLDatabase
@@ -907,7 +907,7 @@ function New-SecurePassFile {
     
     .NOTES
     Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-    Last Modified: 11/07/2017
+    Last Modified: 4/17/2019
     Based on code from Shawn Melton (@wsmelton), http://blog.wsmelton.com
     
     .LINK
@@ -1255,7 +1255,7 @@ function Write-IndexPage{
 
 .NOTES
     Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-    Last modified: 2/26/2019
+    Last modified: 4/17/2019
 
 .COMPONENT
     Get-ChildItem, Out-File
