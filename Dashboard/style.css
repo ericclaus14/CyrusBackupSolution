@@ -18,6 +18,9 @@ a {
     color: white;
     text-decoration: none;
 }
+#support-body a {
+    text-decoration: underline;
+}
 /* BEGIN SIDE BAR NAVIGATION MENU */
 .nav-bar {
     display: flex;
