@@ -32,6 +32,11 @@ Cyrus can be found in its GitHub repo here: https://github.com/ericclaus14/Cyrus
 Once Cyrus's source files are located on your server, there are a few additional things you'll need to do to complete the installation.
 
 First, you'll need to add Cyrus's root directory ('C:\CyrusBackupSolution') to the PSModulePath system environment variable in Windows.
+
+There are two ways to do this. The first way is to run the following PowerShell command:
+'[Environment]::SetEnvironmentVariable("PSModulePath","$env:PSModulePath;C:\CyrusBackupSolution","Machine")'
+
+The second way is to modify the system environment variable manually:
 1. Search for 'system environment variables' in the Start Menu and open "Edit the system environment variables".
 2. From the "Advanced" tab of the System Properties window (that has hopefully now opened), click "Environment Variables".
 3. In the "System variables" section near the bottom of the window (NOT the "user variables" section!), scroll down to the "PSModulePath" variable.
