@@ -190,48 +190,48 @@ foreach ($backupJob in $configFile.Keys) {
             }
             "SSH-Full" {
                 if ($VerbosePreference -eq "Continue") {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Verbose
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Verbose
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
                 }
                 else {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
                 }
             }
             "SSH-Full-SSHShellStream" {
                 if ($VerbosePreference -eq "Continue") {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -SshShellStream -Verbose
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -SshShellStream -Verbose
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
                 }
                 else {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -SshShellStream
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -SshShellStream
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
                 }
             }
             "SSH-Incremental" {
                 if ($VerbosePreference -eq "Continue") {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -Verbose
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -Verbose
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose                
                 }
                 else {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
                 }
             }
             "SSH-Incremental-SSHShellStream" {
                 if ($VerbosePreference -eq "Continue") {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream -Verbose 
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream -Verbose 
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion -Verbose
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion -Verbose
                 }
                 else {
-                    Backup-SshAppliance -DeviceIPs $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
+                    Backup-SshAppliance -IP $netPath -CommandList $cmdList -BackupDirectory $bkDir -Username $userName -SecurePasswordFile $passwordFile -ProductOwnerEmail $owner -Incremental -SshShellStream
                     Remove-Backups -BackupName $name -DaysOldToKeep $retention -BackupFolder $bkDir -Extension $backupFileExetnsion
                     Write-HtmlPage -BackupDirPath $bkDir -HtmlFileName "History_SSH-$name.html" -HtmlPageTitle "$name Backup History" -Frequency $frequency -FileExtensionWithoutPeriod $backupFileExetnsion
                 }

@@ -7,7 +7,7 @@
 
 .NOTES
     Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-    Last Modified: 4/16/2019
+    Last Modified: 4/22/2019
     Licensed under GNU General Public License v3 (GPL-3)
 
 .LINK
@@ -311,15 +311,15 @@ function Backup-SshAppliance{
 
     .EXAMPLE
         # Backups up device 10.7.2.3 by running the two commands specified in the array in the -CommandList parameter. Performs an incremental backup and uses an SSH Shell Stream.
-        Backup-SshAppliance -DeviceIPs "10.7.2.3" -CommandList ("command one", "command two") -BackupDirectory C:\Backups -LogDirectory C:\BackupLogs -Username root -SecurePasswordFile C:\path\to\secure\pass\file -Incremental -SshShellStream -PrependDate
+        Backup-SshAppliance -IP "10.7.2.3" -CommandList ("command one", "command two") -BackupDirectory C:\Backups -LogDirectory C:\BackupLogs -Username root -SecurePasswordFile C:\path\to\secure\pass\file -Incremental -SshShellStream -PrependDate
     
     .EXAMPLE
-        # Backups up devices 10.7.2.3 and 10.7.2.4 by running command specified. Performs an full backup and doesn't use an SSH Shell Stream.
-        Backup-SshAppliance -DeviceIPs "10.7.2.3" -CommandList "command two" -BackupDirectory C:\Backups -LogDirectory C:\BackupLogs -Username root -SecurePasswordFile C:\path\to\secure\pass\file -PrependDate -PrependIP
+        # Backups up device 10.7.2.3 by running command specified. Performs an full backup and doesn't use an SSH Shell Stream.
+        Backup-SshAppliance -IP "10.7.2.3" -CommandList "command two" -BackupDirectory C:\Backups -LogDirectory C:\BackupLogs -Username root -SecurePasswordFile C:\path\to\secure\pass\file -PrependDate -PrependIP
     
     .NOTES
         Author: Eric Claus, Sys Admin, Collegedale Academy, ericclaus@collegedaleacademy.com
-        Last modified: 4/17/2019
+        Last modified: 4/22/2019
 
     .COMPONENT
         Posh-SSH, Compare-Files
@@ -330,9 +330,9 @@ function Backup-SshAppliance{
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "SecurePasswordFile")]
 
     Param(
-        # IP, or list of IPs, to perform the backup on
+        # IP to perform the backup on
         [Parameter(Mandatory=$true)]
-            [string[]]$DeviceIPs,
+            [string]$IP,
 
         # Array of commands to be run via SSH on remote device
         [Parameter(Mandatory=$true)]
@@ -379,13 +379,17 @@ function Backup-SshAppliance{
 
     ########## Begin Error Handling ##########
     # If any terminating error occurs, invoke the Send-AlertEmail function and stop the script
-    trap {Send-AlertEmail -ItemBeingBackedUpName "$DeviceIPs-SSH" -ProductOwnerEmail $ProductOwnerEmail; Exit 1}
+    trap {Send-AlertEmail -ItemBeingBackedUpName "$IP-SSH" -ProductOwnerEmail $ProductOwnerEmail; Exit 1}
     # Treat all errors as terminating, useful for the trap statement above
     $ErrorActionPreference = "Stop"
     ########## End Error Handling ##########
 
-    if (!(Test-Path $backupDirectory)) {mkdir $backupDirectory}
-    if (!(Test-Path $LogDirectory)) {mkdir $LogDirectory}
+    if (!(Test-Path $backupDirectory)) {
+        New-Item $backupDirectory -ItemType Directory | Out-Null
+    }
+    if (!(Test-Path $LogDirectory)) {
+        New-Item $LogDirectory -ItemType Directory | Out-Null
+    }
 
     $date = (Get-Date).ToString("MMddyyHHmm")
 
@@ -397,117 +401,109 @@ function Backup-SshAppliance{
     # Start SolarWinds TFTP Server and enable firewall rule
     Start-TftpServer
 
-    # Loop through each device
-    foreach ($IP in $DeviceIPs) {
-        Write-Output "Backing up $IP..."
 
-        $log = "$LogDirectory\$IP.log"
-        Write-Output "-----------------------------------------------------------" | Out-File -Append $log
-        Write-Output "-----------------------------------------------------------" | Out-File -Append $log
-        Write-Output "Date: $date" | Out-File -Append $log
+    Write-Output "Backing up $IP..."
 
-        # Set, and if needed create, the device's backup directory
-        $deviceBackupDir = "$BackupDirectory\$IP"
-        if (!(Test-Path $deviceBackupDir)) {
-            New-Item $deviceBackupDir -ItemType Directory | Out-Null
+    $log = "$LogDirectory.log"
+    Write-Output "-----------------------------------------------------------" | Out-File -Append $log
+    Write-Output "-----------------------------------------------------------" | Out-File -Append $log
+    Write-Output "Date: $date" | Out-File -Append $log
+
+    # Create a new SSH session
+    $session = New-SSHSession -ComputerName $IP -Credential $credentials -AcceptKey:$True
+
+    if ($SshShellStream) {
+        # Initiate an SSH Shell Stream
+        $shellStream = New-SSHShellStream -SSHSession $session
+
+        # Send a space to get past possible "Press any key to continue" screen (could be any key)
+        $shellStream.WriteLine(" ")
+        Start-Sleep 5
+
+        # Loop through the list of commands and execute them through the SSH session
+        foreach ($cmd in $CommandList) {
+            $shellStream.WriteLine($cmd)
+            Start-Sleep $CommandWaitTime
         }
-
-        # Create a new SSH session
-        $session = New-SSHSession -ComputerName $IP -Credential $credentials -AcceptKey:$True
-
-        if ($SshShellStream) {
-            # Initiate an SSH Shell Stream
-            $shellStream = New-SSHShellStream -SSHSession $session
-
-            # Send a space to get past possible "Press any key to continue" screen (could be any key)
-            $shellStream.WriteLine(" ")
-            Start-Sleep 5
-
-            # Loop through the list of commands and execute them through the SSH session
-            foreach ($cmd in $CommandList) {
-                $shellStream.WriteLine($cmd)
-                Start-Sleep $CommandWaitTime
-            }
-        }
-        else {
-            # Loop through the list of commands and execute them through the SSH session
-            foreach ($cmd in $CommandList) {
-                Invoke-SSHCommand -Command $cmd -SSHSession $session
-            }
-        }
-
-        # Close the SSH session
-        Remove-SSHSession -SSHSession $session
-
-        # Get the name of the new backup file
-        $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
-        
-        $PrependDate = $true
-        $PrependIP = $true
-
-        if (($DoNotPrependDate)) {$PrependDate = $false}
-        if (($DoNotPrependIP)) {$PrependIP = $false}
-
-        # Rename if file if the $PrependDate and/or $PrependIP switches are set
-        if ($PrependDate) {
-            Rename-Item $($newFileName.FullName) -NewName "$date-$($newFileName.Name)"
-            Write-Verbose "Prepended date to file name."
-            $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
-        }
-        if ($PrependIP) {
-            Rename-Item $($newFileName.FullName) -NewName "$IP-$($newFileName.Name)"
-            Write-Verbose "Prepended IP to file name."
-        }
-        $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
-
-        # Get the name of the most recent copy of the device's backup file
-        $oldFileName = (Get-ChildItem "$deviceBackupDir" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
-
-        # If the -Incremental flag is set and there is a previous backup file
-        if ($Incremental -and $oldFileName) {
-            Write-Verbose "Beginning incremental (Compare-Files) portion..."
-        
-            Write-Output "Type: Incremental." | Out-File -Append $log
-        
-            Write-Verbose "Old file: $oldFileName; new file: $newFileName"
-
-            # Check to see if there has been a change to the device since last backup
-            # If so, store the changed lines in $compareResults
-            $compareResults = Compare-Files $oldFileName $newFileName
-
-            # If there has been a change to the backup file 
-            If ($compareResults) {
-                # Move the backup file to the backup directory
-                Move-Item $newFileName $deviceBackupDir
-
-                Write-Output "Device $IP has been backed up. A change has been detected." | Tee-Object -filepath $log -Append
-
-                # Write the backup file's changes (the results of Compare-Files) to the change log
-                Write-Output $compareResults | Out-File $log -Append
-            }
-
-            # If there has not been a change to the config
-            Else {
-                # Delete the newly created backup file
-                #Remove-Item $newFileName
-                Write-Output "Device $IP has not been backed up. No change has been detected." | Tee-Object -filepath $log -Append
-            }
-        }
-        else {
-            Write-Verbose "Incremental switch not set, or no previous backup present, moving new backup file to backup directory."
-        
-            Write-Output "Type: Full." | Out-File -Append $log
-
-            # Move the backup file to the backup directory
-            Move-Item $newFileName $deviceBackupDir
-
-            $newlyMovedFile = (Get-ChildItem "$deviceBackupDir" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
-
-            Write-Verbose "Newly created file name: $newlyMovedFile."
-        }
-
-        Write-Output "Backup of $IP as $newFileName complete - $date." | Tee-Object -Append $log
     }
+    else {
+        # Loop through the list of commands and execute them through the SSH session
+        foreach ($cmd in $CommandList) {
+            Invoke-SSHCommand -Command $cmd -SSHSession $session
+        }
+    }
+
+    # Close the SSH session
+    Remove-SSHSession -SSHSession $session
+
+    # Get the name of the new backup file
+    $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
+    
+    $PrependDate = $true
+    $PrependIP = $true
+
+    if (($DoNotPrependDate)) {$PrependDate = $false}
+    if (($DoNotPrependIP)) {$PrependIP = $false}
+
+    # Rename if file if the $PrependDate and/or $PrependIP switches are set
+    if ($PrependDate) {
+        Rename-Item $($newFileName.FullName) -NewName "$date-$($newFileName.Name)"
+        Write-Verbose "Prepended date to file name."
+        $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1)
+    }
+    if ($PrependIP) {
+        Rename-Item $($newFileName.FullName) -NewName "$IP-$($newFileName.Name)"
+        Write-Verbose "Prepended IP to file name."
+    }
+    $newFileName = (Get-ChildItem $tftpRoot | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
+
+    # Get the name of the most recent copy of the device's backup file
+    $oldFileName = (Get-ChildItem "$BackupDirectory" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
+
+    # If the -Incremental flag is set and there is a previous backup file
+    if ($Incremental -and $oldFileName) {
+        Write-Verbose "Beginning incremental (Compare-Files) portion..."
+    
+        Write-Output "Type: Incremental." | Out-File -Append $log
+    
+        Write-Verbose "Old file: $oldFileName; new file: $newFileName"
+
+        # Check to see if there has been a change to the device since last backup
+        # If so, store the changed lines in $compareResults
+        $compareResults = Compare-Files $oldFileName $newFileName
+
+        # If there has been a change to the backup file 
+        If ($compareResults) {
+            # Move the backup file to the backup directory
+            Move-Item $newFileName $BackupDirectory
+
+            Write-Output "Device $IP has been backed up. A change has been detected." | Tee-Object -filepath $log -Append
+
+            # Write the backup file's changes (the results of Compare-Files) to the change log
+            Write-Output $compareResults | Out-File $log -Append
+        }
+
+        # If there has not been a change to the config
+        Else {
+            # Delete the newly created backup file
+            #Remove-Item $newFileName
+            Write-Output "Device $IP has not been backed up. No change has been detected." | Tee-Object -filepath $log -Append
+        }
+    }
+    else {
+        Write-Verbose "Incremental switch not set, or no previous backup present, moving new backup file to backup directory."
+    
+        Write-Output "Type: Full." | Out-File -Append $log
+
+        # Move the backup file to the backup directory
+        Move-Item $newFileName $BackupDirectory
+
+        $newlyMovedFile = (Get-ChildItem "$BackupDirectory" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName
+
+        Write-Verbose "Newly created file name: $newlyMovedFile."
+    }
+
+    Write-Output "Backup of $IP as $newFileName complete - $date." | Tee-Object -Append $log
 
     # Stop SolarWinds TFTP Server and disable firewall rule
     Stop-TftpServer
